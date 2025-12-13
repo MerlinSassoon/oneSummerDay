@@ -24,9 +24,6 @@ async function loadIndex(){
 }
 // 加载场景
 async function loadMainText(sceneName, ){
-  // 选择并清空主文本区
-  var oMainTextarea = document.getElementById("主文本区");
-  oMainTextarea.replaceChildren();
   // 通过场景索引和场景名得到场景路径，并捕获错误
   const sceneInfo = sceneIndex[sceneName]
   if (!sceneInfo) {
@@ -35,6 +32,10 @@ async function loadMainText(sceneName, ){
     return;
   }
   const filePath = sceneIndex.base_path + sceneInfo.file
+
+  // 选择并清空主文本区
+  var oMainTextarea = document.getElementById("主文本区");
+  oMainTextarea.replaceChildren();
   // 通过缓存机制加载场景
   try{
     // 缓存机制
@@ -49,6 +50,11 @@ async function loadMainText(sceneName, ){
     const mytext = fileCache[filePath];
     const sceneData = mytext[sceneInfo.key]
 
+    // 分段落加载文本
+    var oHeadline = document.createElement('h2');
+    oHeadline.innerText = sceneData.name;
+    oHeadline.style.margin = "5px 0px";
+    oMainTextarea.appendChild(oHeadline);
     if(sceneData.descript){
       for(var i=0; i < sceneData.descript.length ; i++){
         var oDescript = document.createElement("p");
@@ -74,27 +80,29 @@ async function loadMainText(sceneName, ){
 //加载新场景按钮，前往本场景有道路连接的位置
 function loadRoadButton(oFather, arr_roads){
   if(arr_roads){
+    var oBtnUl = document.createElement("ul");
+    oBtnUl.className = "跳转按钮";
+
     for(var i=0; i< arr_roads.length; i++){
-      var oBtn = document.createElement("input");
-      oBtn.type = "button";
-      oBtn.value = arr_roads[i];
-
-      oBtn.onclick = function(){
-        loadScene(this);
+      var oBtnLi = document.createElement("li");
+      oBtnLi.innerText = "---"+arr_roads[i]+"---";
+      oBtnLi.setAttribute("value", arr_roads[i]);
+      oBtnLi.onclick = function(){
+        loadScene(this.getAttribute("value"));
       };
-
-      oFather.appendChild(oBtn);
+      oBtnUl.appendChild(oBtnLi);
     }
+    oFather.appendChild(oBtnUl);
   }
 }
 
 // 加载场景
-function loadScene(button){
+function loadScene(button_value){
   // 如果新场景在本场景路径的附近（前后）,则不压入新场景
-  if(currentPointer > 0 && sceneRoad[currentPointer-1] === button.value){
+  if(currentPointer > 0 && sceneRoad[currentPointer-1] === button_value){
     currentPointer--;
     console.log("<-：", sceneRoad);
-  }else if(currentPointer < sceneRoad.length-1 && sceneRoad[currentPointer+1] === button.value){
+  }else if(currentPointer < sceneRoad.length-1 && sceneRoad[currentPointer+1] === button_value){
     currentPointer++;
     console.log("->：", sceneRoad);
   }else{
@@ -103,7 +111,7 @@ function loadScene(button){
       sceneRoad = sceneRoad.slice(0, currentPointer+1)
     }
     // 压入新场景,场景记忆只有5步
-    sceneRoad.push(button.value);
+    sceneRoad.push(button_value);
     if(currentPointer >= 4){
       sceneRoad.shift();
     }else{
@@ -111,8 +119,8 @@ function loadScene(button){
     }
   }
   // 加载新场景
-  loadMainText(button.value);
-  console.log("newRoad:", button.value);
+  loadMainText(button_value);
+  console.log("newRoad:", button_value);
 }
 
 

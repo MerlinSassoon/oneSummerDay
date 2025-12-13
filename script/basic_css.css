@@ -18,16 +18,26 @@
   margin: 0px 1.4%;
 }
 
+#文本区{
+  display: flex;
+}
 .文本区 {
+  display: flex;
+  flex-direction: column;
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-  float: left;
   margin: 10px 0.7% 0px 0.7% ;
+  padding: 20px 40px;
 }
-
 .主文本 {
-  margin: 25px 40px;
+  margin: 5px 0px;
   font-size: 18px;
   text-indent: 36px;
+}
+.跳转按钮 {
+  margin-top: auto;
+  padding-left: 0px;
+  text-align: center;
+  list-style-type: none;
 }
