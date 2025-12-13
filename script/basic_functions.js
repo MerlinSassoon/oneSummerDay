@@ -84,9 +84,13 @@ function loadRoadButton(oFather, arr_roads){
         if(currentPointer < sceneRoad.length - 1){
           sceneRoad = sceneRoad.slice(0, currentPointer+1)
         }
-        // 压入新场景
+        // 压入新场景,场景记忆只有5步
         sceneRoad.push(this.value);
-        currentPointer++;
+        if(currentPointer >= 4){
+          sceneRoad.shift();
+        }else{
+          currentPointer++;
+        }
         // 加载新场景
         loadMainText(this.value);
         console.log("Road", sceneRoad);
