@@ -60,14 +60,12 @@ async function loadMainText(sceneName, ){
 
     // 前往本场景有道路连接的位置
     loadRoadButton(oMainTextarea, sceneData.road);
-    // 回头机制：在Road上滑动，并且Road不改变
-    loadBackButton(oMainTextarea);
-    loadForwardButton(oMainTextarea);
+    // 回头机制：在Road上滑动，并且Road不改变，绑定至按键事件
 
     console.log("数据加载成功", mytext);
   }catch(error){
     console.log("出现错误：", error);
-    alert('加载文本内容失败，请检查控制台。');
+    alert('加载文内容失败，请检查控制台。');
   }
 }
 
@@ -99,37 +97,25 @@ function loadRoadButton(oFather, arr_roads){
   }
 }
 
+document.addEventListener('keydown', loadBack, false);
+document.addEventListener('keydown', loadForward, false);
+
 //前进和后退绑到按键事件，用于便捷行动
 //加载回头按钮，返回路径上后一个场景
-function loadBackButton(oFather){
+function loadBack(event){
   // 如果有后退的空间，就创建一个后退按钮
-  if(currentPointer > 0){
-    var oBtn = document.createElement("input");
-    oBtn.type = "button";
-    oBtn.value = "后退";
-
-    oBtn.onclick = function(){
-      currentPointer--;
-      loadMainText(sceneRoad[currentPointer]);
-      console.log("后退：", sceneRoad);
-    }
-    oFather.appendChild(oBtn);
+  if(currentPointer > 0 && event.key == "ArrowLeft"){
+    currentPointer--;
+    loadMainText(sceneRoad[currentPointer]);
+    console.log("<-：", sceneRoad);
   }
 }
-
 //加载前进按钮，返回路径上前一个场景
-function loadForwardButton(oFather){
+function loadForward(){
   // 如果有前进的空间，就创建一个前进按钮
-  if(currentPointer < sceneRoad.length - 1){
-    var oBtn = document.createElement("input");
-    oBtn.type = "button";
-    oBtn.value = "前进";
-
-    oBtn.onclick = function(){
-      currentPointer++;
-      loadMainText(sceneRoad[currentPointer]);
-      console.log("回头：", sceneRoad);
-    }
-    oFather.appendChild(oBtn);
+  if(currentPointer < sceneRoad.length - 1  && event.key == "ArrowRight"){
+    currentPointer++;
+    loadMainText(sceneRoad[currentPointer]);
+    console.log("->：", sceneRoad);
   }
 }
