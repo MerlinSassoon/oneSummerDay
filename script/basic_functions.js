@@ -80,26 +80,41 @@ function loadRoadButton(oFather, arr_roads){
       oBtn.value = arr_roads[i];
 
       oBtn.onclick = function(){
-        // 如果不在栈末尾，就截断
-        if(currentPointer < sceneRoad.length - 1){
-          sceneRoad = sceneRoad.slice(0, currentPointer+1)
-        }
-        // 压入新场景,场景记忆只有5步
-        sceneRoad.push(this.value);
-        if(currentPointer >= 4){
-          sceneRoad.shift();
-        }else{
-          currentPointer++;
-        }
-        // 加载新场景
-        loadMainText(this.value);
-        console.log("Road", sceneRoad);
+        loadScene(this);
       };
 
       oFather.appendChild(oBtn);
     }
   }
 }
+
+// 加载场景
+function loadScene(button){
+  // 如果新场景在本场景路径的附近（前后）,则不压入新场景
+  if(currentPointer > 0 && sceneRoad[currentPointer-1] === button.value){
+    currentPointer--;
+    console.log("<-：", sceneRoad);
+  }else if(currentPointer < sceneRoad.length-1 && sceneRoad[currentPointer+1] === button.value){
+    currentPointer++;
+    console.log("->：", sceneRoad);
+  }else{
+    // 如果不在栈末尾，就截断
+    if(currentPointer < sceneRoad.length - 1){
+      sceneRoad = sceneRoad.slice(0, currentPointer+1)
+    }
+    // 压入新场景,场景记忆只有5步
+    sceneRoad.push(button.value);
+    if(currentPointer >= 4){
+      sceneRoad.shift();
+    }else{
+      currentPointer++;
+    }
+  }
+  // 加载新场景
+  loadMainText(button.value);
+  console.log("newRoad:", button.value);
+}
+
 
 document.addEventListener('keydown', loadBack, false);
 document.addEventListener('keydown', loadForward, false);
