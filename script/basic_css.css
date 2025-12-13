@@ -1,5 +1,9 @@
+body{
+  min-width: 960px;
+  overflow-x: auto;
+}
 .状态条 {
-  width: 43%;
+  width: 40%;
   height: 20px;
   background-color: skyblue;
   float: left;
@@ -27,8 +31,9 @@
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-  margin: 10px 0.7% 0px 0.7% ;
-  padding: 20px 40px;
+  margin: 10px 0.7% 10px 0.7% ;
+  padding: 1.5% 2.5%;
+  overflow-y: auto;
 }
 .主文本 {
   margin: 5px 0px;
