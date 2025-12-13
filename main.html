@@ -3,59 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>风之城</title>
-  <script src="../jquery-3.7.1.js"></script>
-  <style>
-    .状态条 {
-      width: 43%;
-      height: 20px;
-      background-color: skyblue;
-      float: left;
-      margin: 2.5px 0.8%;
-    }
-    .buff{
-      border: 1px solid black;
-      float: left;
-      margin: 0px 2.5px;
-    }
-    .固定图标 {
-      border: 1px solid black;
-      float: right;
-      margin: 0px 1.4%;
-    }
-    .文本区 {
-      background-color: white;
-      border-radius: 5px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-      float: left;
-      margin: 10px 0.7% 0px 0.7% ;
-    }
-
-  </style>
-  <script>
-    function icon_generation(arr_icon, id_parent, classname){
-      for(var i=0; i < arr_icon.length; i++){
-          var src_str = "图片素材/" + arr_icon[i] + ".png";
-          var $icon = "<img src='" + src_str + "' class='" + classname + "' alt=" + arr_icon[i] + "' title=" + arr_icon[i] + ">"
-
-          $("#"+id_parent).append($icon);
-      }
-
-    /*    var oicons = document.getElementById(id_parent)
-      for(var i=0; i < arr_icon.length; i++){
-        var oicon = document.createElement("img");
-
-        oicon.src = "图片素材/" + arr_icon[i] + ".png";
-        oicon.className = classname;
-        oicons.appendChild(oicon);
-      }
-    */
-    }
-
-    window.onload = function(){
+  <!--script src="../jquery-3.7.1.js"></--script-->
+  <link rel="stylesheet" href="script/basic_css.css" type="text/css"/>
+  <script src="script/basic_functions.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    window.onload = async function(){
       var arr_buff = ["饿", "困", "伤", "毒", "幻"];
-      icon_generation(arr_buff, "buff栏", "buff");
+      IconGeneration(arr_buff, "buff栏", "buff");
       var arr_func = ["暧", "习", "烹", "图", "家"];
-      icon_generation(arr_func, "图标栏", "固定图标");
+      IconGeneration(arr_func, "图标栏", "固定图标");
+
+      await loadIndex();
+      await loadMainText(START_SCENE);
     }
 
     </script>
@@ -78,13 +37,12 @@
   </div>
 
 
-  <div id="系统栏位" class="文本区" style="width: 30%; height: 659px;">
-    系统栏位文件系统
+  <div class="文本区" style="width: 30%; height: 659px;"><!-- 系统栏位和行动滚屏的切换 -->
+    系统栏位文件系统 OR 行动滚屏
   </div>
-  <div id="主文本区" class="文本区" style="width: 67.2%; height: 659px;">
-    <p style="margin: 25px 40px; font-size: 18px; text-indent: 36px;">清晨的蒙德城沐浴在璀璨耀眼的日光中，温暖的风盘旋在高耸的屋脊上，乘着人们的叫卖、呼唤、欢笑还有飘摇的思念，愈飞愈高。</p>
-    <p style="margin: 25px 40px; font-size: 18px; text-indent: 36px;">从宏伟的狮鹫门入城，就是蒙德城最大的市集，这里有凯瑟琳小姐值守的冒险家协会，可以买到许多宝物的自由之风，琳达小姐的猎鹿人酒馆，可以向琳达小姐借锅灶喔，还有蒂玛乌斯先生看守的炼金合成台，最后是杂货铺。</p>
-  </div>
+
+
+  <div id="主文本区" class="文本区" style="width: 67.2%; height: 659px;"></div>
   <div style="clear: both;"></div>
 </body>
 </html>

@@ -1,0 +1,33 @@
+.状态条 {
+  width: 43%;
+  height: 20px;
+  background-color: skyblue;
+  float: left;
+  margin: 2.5px 0.8%;
+}
+
+.buff{
+  border: 1px solid black;
+  float: left;
+  margin: 0px 2.5px;
+}
+
+.固定图标 {
+  border: 1px solid black;
+  float: right;
+  margin: 0px 1.4%;
+}
+
+.文本区 {
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  float: left;
+  margin: 10px 0.7% 0px 0.7% ;
+}
+
+.主文本 {
+  margin: 25px 40px;
+  font-size: 18px;
+  text-indent: 36px;
+}
