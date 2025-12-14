@@ -2,9 +2,9 @@
   "战斗": {
     "name": "战斗",
     "descript": [
-      "<p id='对手'></p>",
-      "<p id='牌桌'></p>",
-      "<p id='玩家'></p>"
+      "<div id='对手'></div>",
+      "<div id='牌桌'><div id='对手手牌区' class='手牌区'></div><div id='回合指示区'></div><div id='玩家手牌区' class='手牌区'></div></div>",
+      "<div id='玩家'></div>"
     ],
     "road": ["剪刀", "石头", "布"]
   }

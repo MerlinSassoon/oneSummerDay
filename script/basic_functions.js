@@ -3,6 +3,7 @@ let sceneRoad = [START_SCENE, ];  // 路径栈
 let currentPointer = 0;           // 起始指针
 let fileCache = {};               // 场景缓存
 let sceneIndex = null;            // 场景索引预载
+let isBFDisabled = false;         // 前进后退是否不可用
 
 // 加载图片作为图标，arr_icon是一个列表，输入元素；id_parent用来选择父元素；class_name用来动态添加CSS样式；
 function IconGeneration(arr_icon, id_parent, class_name){
@@ -63,7 +64,7 @@ async function loadMainText(sceneName, ){
     // 主文本内容区，分段落加载主文本内容
     if(sceneData.descript){
       for(var i=0; i < sceneData.descript.length ; i++){
-        var oDescript = document.createElement("p");
+        var oDescript = document.createElement("div");
         oDescript.innerHTML = sceneData.descript[i];
         oDescript.className = "主文本内容";
         oMainTextContent.appendChild(oDescript);
@@ -129,26 +130,36 @@ async function loadScene(button_value){
   console.log("newRoad:", button_value);
 }
 
+function bindBF(){
+  document.addEventListener('keydown', loadBack, false);
+  document.addEventListener('keydown', loadForward, false);
+}
 
-document.addEventListener('keydown', loadBack, false);
-document.addEventListener('keydown', loadForward, false);
 
 //前进和后退绑到按键事件，用于便捷行动
 //加载回头按钮，返回路径上后一个场景
 function loadBack(event){
   // 如果有后退的空间，就创建一个后退按钮
-  if(currentPointer > 0 && event.key == "ArrowLeft"){
-    currentPointer--;
-    loadMainText(sceneRoad[currentPointer]);
-    console.log("<-：", sceneRoad);
+  if(!isBFDisabled){
+    if(currentPointer > 0 && event.key == "ArrowLeft"){
+      currentPointer--;
+      loadMainText(sceneRoad[currentPointer]);
+      console.log("<-：", sceneRoad);
+    }
+  }else{
+    console.log("前进后退被禁用");
   }
 }
 //加载前进按钮，返回路径上前一个场景
 function loadForward(){
   // 如果有前进的空间，就创建一个前进按钮
-  if(currentPointer < sceneRoad.length - 1  && event.key == "ArrowRight"){
-    currentPointer++;
-    loadMainText(sceneRoad[currentPointer]);
-    console.log("->：", sceneRoad);
+  if(!isBFDisabled){
+    if(currentPointer < sceneRoad.length - 1  && event.key == "ArrowRight"){
+      currentPointer++;
+      loadMainText(sceneRoad[currentPointer]);
+      console.log("->：", sceneRoad);
+    }
+  }else{
+    console.log("前进后退被禁用");
   }
 }

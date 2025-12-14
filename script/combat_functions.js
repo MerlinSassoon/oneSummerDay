@@ -10,6 +10,8 @@ async function bigWorldInteraction(event){
   if(target.classList.contains("魔物")){
     // 异步加载战斗场景
     await loadScene("战斗");
+    // 禁用回退
+    isBFDisabled = true;
     // 创建牌桌
     createMahjongTable(target);
 
@@ -34,6 +36,21 @@ function createMahjongTable(target){
     const oMahjongTable = document.getElementById("牌桌");
     const oMahjongTableArea = oMahjongTable.parentNode;
     oMahjongTableArea.className = "牌桌场地";
+    // 牌桌上有双方各有5张牌；
+    const [oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
+    const Cards = ["真", "真", "真", "假", "假"];
+    for(var i=0; i<5; i++){
+      const oPCard = document.createElement('div');
+      oPCard.innerText = Cards[i];
+      oPCard.className = "手牌";
+      oPlayerCards.appendChild(oPCard);
+
+      const oMCard = document.createElement('div');
+      oMCard.className = "手牌";
+      oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
+    }
+
+    // 回合指示结合回合流程进行；
 
     const oPlayer = document.getElementById("玩家");
     oPlayer.innerText = "代号：玩家的名字";
