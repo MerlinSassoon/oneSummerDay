@@ -47,6 +47,13 @@ body{
 }
 .主文本跳转 {
   padding-left: 0px;
+  color: #424242;
+  font-size: 15px;
   text-align: center;
   list-style-type: none;
+}
+li:hover{
+  background-color: #f5f5f5;
+  color: #000000;
+  font-size: 18px;
 }
