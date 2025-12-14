@@ -33,9 +33,20 @@ async function loadMainText(sceneName, ){
   }
   const filePath = sceneIndex.base_path + sceneInfo.file
 
-  // 选择并清空主文本区
-  var oMainTextarea = document.getElementById("主文本区");
-  oMainTextarea.replaceChildren();
+  // 选择主文本区
+  const oMainTextArea = document.getElementById("主文本区");
+  // oMainTextArea.replaceChildren();
+  // 获得三个子块并清空其中的内容
+  const [oMainTextHead, oMainTextContent, oMainTextJump] = Array.from(oMainTextArea.children);
+  [oMainTextHead, oMainTextContent, oMainTextJump].forEach(el => el.replaceChildren());
+
+  // 主文本标题区
+  var oHeadline = document.createElement('h2');
+  oHeadline.innerText = sceneName;
+  oHeadline.className = "主文本标题";
+  oMainTextHead.appendChild(oHeadline);
+
+  // 主文本内容区和跳转区
   // 通过缓存机制加载场景
   try{
     // 缓存机制
@@ -50,22 +61,18 @@ async function loadMainText(sceneName, ){
     const mytext = fileCache[filePath];
     const sceneData = mytext[sceneInfo.key]
 
-    // 分段落加载文本
-    var oHeadline = document.createElement('h2');
-    oHeadline.innerText = sceneData.name;
-    oHeadline.style.margin = "5px 0px";
-    oMainTextarea.appendChild(oHeadline);
+    // 主文本内容区，分段落加载主文本内容
     if(sceneData.descript){
       for(var i=0; i < sceneData.descript.length ; i++){
         var oDescript = document.createElement("p");
         oDescript.innerText = sceneData.descript[i];
-        oDescript.className = "主文本";
-        oMainTextarea.appendChild(oDescript);
+        oDescript.className = "主文本内容";
+        oMainTextContent.appendChild(oDescript);
       }
     }
 
-    // 前往本场景有道路连接的位置
-    loadRoadButton(oMainTextarea, sceneData.road);
+    // 主文本跳转区，前往本场景有道路连接的位置
+    loadRoadButton(oMainTextJump, sceneData.road);
     // 回头机制：在Road上滑动，并且Road不改变，绑定至按键事件
 
     console.log("数据加载成功", mytext);
@@ -81,7 +88,7 @@ async function loadMainText(sceneName, ){
 function loadRoadButton(oFather, arr_roads){
   if(arr_roads){
     var oBtnUl = document.createElement("ul");
-    oBtnUl.className = "跳转按钮";
+    oBtnUl.className = "主文本跳转";
 
     for(var i=0; i< arr_roads.length; i++){
       var oBtnLi = document.createElement("li");

@@ -28,20 +28,24 @@ body{
 .文本区 {
   display: flex;
   flex-direction: column;
+  position: relative;
+
   background-color: white;
   border-radius: 5px;
   box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-  margin: 10px 0.7% 10px 0.7% ;
-  padding: 1.5% 2.5%;
+  margin: 10px 0.7%;
+  padding: 1.5% 2.5% 10px 2.5%;
   overflow-y: auto;
 }
-.主文本 {
+.主文本标题{
+  margin: 5px 0px;
+}
+.主文本内容 {
   margin: 5px 0px;
   font-size: 18px;
   text-indent: 36px;
 }
-.跳转按钮 {
-  margin-top: auto;
+.主文本跳转 {
   padding-left: 0px;
   text-align: center;
   list-style-type: none;

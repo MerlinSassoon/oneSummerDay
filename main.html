@@ -20,7 +20,7 @@
     </script>
 </head>
 <body style="background-color: #f8f4e8; height: 719px;">
-  <!--完成了基本布局，初步实现了动态添加DOM元素，考虑csv或txt存储文本内容并导入-->
+  <!--主文本区的上下滑动功能-->
   <div id="页头信息栏">
     <div id="个人信息" style="width: 65%; float: left;">
       <img src="图片素材/头.png" class="固定图标" style="float: left;"/>
@@ -37,10 +37,14 @@
   </div>
 
   <div id="文本区">
-    <div id="副文本区" class="文本区" style="width: 30%; height: 615px;"><!-- 系统栏位和行动滚屏的切换 -->
+    <div id="副文本区" class="文本区" style="width: 30%; height: 625px;"><!-- 系统栏位和行动滚屏的切换 -->
       系统栏位文件系统 OR 行动滚屏
     </div>
-    <div id="主文本区" class="文本区" style="width: 67.2%; height: 615px;"></div>
+    <div id="主文本区" class="文本区" style="width: 67.2%; height: 625px;">
+      <div id="主文本标题区" style="flex-shrink: 0;"></div>
+      <div id="主文本内容区" style="flex: 1; min-height: 0; overflow-y: auto;"></div>
+      <div id="主文本跳转区" style="flex-shrink: 0; margin-top: auto;"></div>
+    </div>
   </div>
 
 </body>
