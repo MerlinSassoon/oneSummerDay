@@ -64,7 +64,7 @@ async function loadMainText(sceneName, ){
     if(sceneData.descript){
       for(var i=0; i < sceneData.descript.length ; i++){
         var oDescript = document.createElement("p");
-        oDescript.innerText = sceneData.descript[i];
+        oDescript.innerHTML = sceneData.descript[i];
         oDescript.className = "主文本内容";
         oMainTextContent.appendChild(oDescript);
       }
@@ -103,7 +103,7 @@ function loadRoadButton(oFather, arr_roads){
 }
 
 // 加载场景
-function loadScene(button_value){
+async function loadScene(button_value){
   // 如果新场景在本场景路径的附近（前后）,则不压入新场景
   if(currentPointer > 0 && sceneRoad[currentPointer-1] === button_value){
     currentPointer--;
@@ -125,7 +125,7 @@ function loadScene(button_value){
     }
   }
   // 加载新场景
-  loadMainText(button_value);
+  await loadMainText(button_value);
   console.log("newRoad:", button_value);
 }
 

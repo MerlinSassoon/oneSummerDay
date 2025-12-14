@@ -5,7 +5,9 @@
   <title>风之城</title>
   <!--script src="../jquery-3.7.1.js"></--script-->
   <link rel="stylesheet" href="script/basic_css.css" type="text/css"/>
+  <link rel="stylesheet" href="script/combat_css.css" type="text/css"/>
   <script src="script/basic_functions.js" type="text/javascript"></script>
+  <script src="script/combat_functions.js" type="text/javascript"></script>
   <script type="text/javascript">
     window.onload = async function(){
       var arr_buff = ["饿", "困", "伤", "毒", "幻"];
@@ -15,12 +17,15 @@
 
       await loadIndex();
       await loadMainText(START_SCENE);
+
+      const oMainTextArea = document.getElementById("主文本区")
+      oMainTextArea.addEventListener("click", await bigWorldInteraction, false);
     }
 
     </script>
 </head>
 <body style="background-color: #f8f4e8; height: 719px;">
-  <!--主文本区的上下滑动功能-->
+  <!--大世界特产：低于一定数量隐藏语句，使用元素视野才能继续采摘，完全采摘后会导致恢复时间加长，采摘场景是小游戏-->
   <div id="页头信息栏">
     <div id="个人信息" style="width: 65%; float: left;">
       <img src="图片素材/头.png" class="固定图标" style="float: left;"/>

@@ -4,6 +4,10 @@
     "file": "其他.json",
     "key": "not_found"
   },
+  "战斗": {
+    "file": "战斗.json",
+    "key": "战斗"
+  },
   "蒙德城": {
     "file": "城池.json",
     "key": "蒙德城"

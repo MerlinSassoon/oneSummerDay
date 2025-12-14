@@ -1,0 +1,72 @@
+/* 战斗对手 */
+.魔物 {
+  font-weight: bolder;
+}
+.火元素 {
+  color: #FF5E35;
+}
+.水元素 {
+  color: #2D9BFF;
+}
+.风元素 {
+  color: #4EC1A6;
+}
+.雷元素 {
+  color: #B25CD4;
+}
+.草元素 {
+  color: #7BCF6D;
+}
+.冰元素 {
+  color: #9AD3FF;
+}
+.岩元素 {
+  color: #FFD35C;
+}
+
+/* 战斗场景 */
+.战斗场景 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 100px;
+}
+.战斗选择 {
+  height: 100px;
+}
+.对手场地 {
+  margin: 0px 10px 20px 10px;
+  align-self: flex-end;
+  flex: none;
+}
+#对手 {
+  margin: 0px;
+  text-align: right;
+}
+#对手 span{
+  font-size: 20px;
+}
+.牌桌场地 {
+  margin: 0px;
+  width: 100%;
+  flex: auto;
+}
+#牌桌 {
+  margin: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: #3A5F3A;
+  border-radius: 20px;
+  box-shadow: 3px 3px 10px rgba(20,20,30,0.35);
+}
+.玩家场地 {
+  margin: 30px 10px;
+  align-self: flex-start;
+  flex: none;
+}
+#玩家 {
+  margin: 0px;
+  text-align: left;
+  font-size: 20px;
+}
