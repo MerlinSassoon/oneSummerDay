@@ -13,7 +13,8 @@ async function bigWorldInteraction(event){
     // 禁用回退
     isBFDisabled = true;
     // 创建牌桌
-    createMahjongTable(target);
+    await createMahjongTable(target);
+    // 开始战斗回合
 
     console.log("触发了战斗：", target.innerText);
     //combat_monster(target);
@@ -22,7 +23,7 @@ async function bigWorldInteraction(event){
   }
 }
 
-function createMahjongTable(target){
+async function createMahjongTable(target){
     const oCombatScene = document.getElementById("主文本内容区");
     oCombatScene.className = "战斗场景"
     const oCombatChoose = document.getElementById("主文本跳转区");
@@ -37,7 +38,7 @@ function createMahjongTable(target){
     const oMahjongTableArea = oMahjongTable.parentNode;
     oMahjongTableArea.className = "牌桌场地";
     // 牌桌上有双方各有5张牌；
-    const [oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
+    const [oRuleDisplay, oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
     const Cards = ["真", "真", "真", "假", "假"];
     for(var i=0; i<5; i++){
       const oPCard = document.createElement('div');
@@ -49,11 +50,43 @@ function createMahjongTable(target){
       oMCard.className = "手牌";
       oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
     }
-
-    // 回合指示结合回合流程进行；
+    // 回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
+    // 规则展示区展示战斗规则和流程
+    await loadCombatRules(oRuleDisplay);
 
     const oPlayer = document.getElementById("玩家");
     oPlayer.innerText = "代号：玩家的名字";
     const oPlayerArea = oPlayer.parentNode;
     oPlayerArea.className = "玩家场地";
+}
+
+async function loadCombatRules(oFather){
+  const sceneInfo = sceneIndex["战斗规则"]
+  const filePath = sceneIndex.base_path + sceneInfo.file
+  try{
+    // 缓存机制
+    if(!fileCache[filePath]){
+      console.log('🔄 加载文件:', filePath);
+      const response = await fetch(filePath);
+      fileCache[filePath] = await response.json();
+    }else{
+      console.log('⚡ 使用缓存:', filePath);
+    }
+    // 加载场景
+    const mytext = fileCache[filePath];
+    const combat_rules_text = mytext["战斗规则"];
+
+    if(combat_rules_text){
+      for(var i=0; i < combat_rules_text.length ; i++){
+        var oDescript = document.createElement("div");
+        oDescript.innerHTML = combat_rules_text[i];
+        oDescript.className = "战斗规则";
+        oFather.appendChild(oDescript);
+      }
+    }
+    console.log("数据加载成功", combat_rules_text);
+  }catch(error){
+    console.log("出现错误：", error);
+    alert('加载文内容失败，请检查控制台。');
+  }
 }

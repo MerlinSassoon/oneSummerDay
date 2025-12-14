@@ -63,6 +63,15 @@
   justify-content: space-between;
   align-items: center;
 }
+#规则展示区 {
+  position: absolute;
+  top: 150px;
+  left: 160px;
+  width: 20%;
+  height: 40%;
+  color: white;
+  font-size: 10px;
+}
 .手牌区 {
   /* 内部手牌主轴横轴，左对齐；交叉轴竖轴，居中对齐 */
   display: flex;
@@ -72,7 +81,7 @@
   margin: 5px;
   padding: 5px;
   width: 380px;
-  height: 120px;
+  height: 110px;
   border: 2px dashed white;
   border-radius: 10px;
 }
@@ -84,6 +93,14 @@
 }
 #回合指示区 {
   flex: auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  color: white;
+  font-size: 25px;
+  font-weight: bolder;
 }
 #玩家手牌区 {
   /* 本区单独横轴左对齐 */
