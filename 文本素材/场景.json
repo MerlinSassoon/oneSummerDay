@@ -1,5 +1,9 @@
 {
   "base_path" : "文本素材/",
+  "not_found" : {
+    "file": "其他.json",
+    "key": "not_found"
+  },
   "蒙德城": {
     "file": "城池.json",
     "key": "蒙德城"

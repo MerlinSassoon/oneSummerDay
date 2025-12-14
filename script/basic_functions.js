@@ -25,11 +25,10 @@ async function loadIndex(){
 // 加载场景
 async function loadMainText(sceneName, ){
   // 通过场景索引和场景名得到场景路径，并捕获错误
-  const sceneInfo = sceneIndex[sceneName]
+  var sceneInfo = sceneIndex[sceneName]
   if (!sceneInfo) {
-    console.error(`找不到场景: ${sceneName}`);
-    alert(`错误：场景"${sceneName}"不存在`);
-    return;
+    sceneInfo = sceneIndex["not_found"];
+    console.log(`${sceneName}：前面的区域，以后再来探索吧！`);
   }
   const filePath = sceneIndex.base_path + sceneInfo.file
 
