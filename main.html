@@ -17,6 +17,7 @@
 
       await loadIndex();
       await loadMainText(START_SCENE);
+      await loadSubText(["scene_mode", START_SCENE]);
 
       const oMainTextArea = document.getElementById("主文本区")
       oMainTextArea.addEventListener("click", await bigWorldInteraction, false);
@@ -46,7 +47,10 @@
   <div id="文本区">
     <div id="副文本区" class="文本区" style="width: 30%; height: 625px;"><!-- 系统栏位和行动滚屏的切换 -->
       <div id="副文本规则区" style="flex: none"></div>
-      <div id="副文本行动区" style="flex: auto; min-height: 0; overflow-y: auto;"></div>
+      <div id="副文本行动区" style="display: flex; flex-direction: column; flex: auto; min-height: 0;">
+        <div id="行动标题区" style="flex: none"><h2 style="margin: 5px 0px;">行动</h2></div>
+        <div id="行动内容区" style="flex: auto; min-height: 0; overflow-y: auto; margin-bottom: 15px"></div>
+      </div>
     </div>
     <div id="主文本区" class="文本区" style="width: 67.2%; height: 625px;">
       <div id="主文本标题区" style="flex: none;"></div>

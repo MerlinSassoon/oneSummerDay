@@ -186,6 +186,7 @@ async function loadSubText(config){
   const oSubTextArea = document.getElementById("副文本区");
   // 获得两个子块并清空其中的内容
   const [oSubTextRule, oSubTextAction] = Array.from(oSubTextArea.children);
+  const [oActionHead, oActionContent] = Array.from(oSubTextAction.children);
   //[oMainTextHead, oMainTextContent, oMainTextJump].forEach(el => el.replaceChildren());
   // 规则区清空，行动区持续展示；特殊场景特殊显示
 
@@ -209,7 +210,8 @@ async function loadSubText(config){
       }else{
         oActions = document.createElement("p");
         oActions.innerText = textData+target;
-        oSubTextAction.appendChild(oActions);
+        oActions.className = "副文本行动内容"
+        oActionContent.appendChild(oActions);
       }
     }
 

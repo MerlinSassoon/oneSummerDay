@@ -51,3 +51,6 @@ async function createMahjongTable(oContent, oJump, combat_scene){
     // 规则展示区展示战斗规则和流程
     await loadSubText(["rule_mode", null]);
 }
+
+function combatStar(){
+}
