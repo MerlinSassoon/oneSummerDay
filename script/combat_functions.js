@@ -49,5 +49,5 @@ async function createMahjongTable(oContent, oJump, combat_scene){
     }
     // 回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
     // 规则展示区展示战斗规则和流程
-    await loadSubText("战斗规则");
+    await loadSubText(["rule_mode", null]);
 }

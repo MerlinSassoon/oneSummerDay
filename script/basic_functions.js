@@ -133,6 +133,7 @@ async function loadScene(button_value){
   }
   // 加载新场景
   await loadMainText(button_value);
+  await loadSubText(["scene_mode", button_value]);
   console.log("newRoad:", button_value);
 }
 
@@ -171,7 +172,8 @@ function loadForward(){
 }
 
 // 加载副文本区
-async function loadSubText(textName){
+async function loadSubText(config){
+  const [textName, target] = config;
   // 通过场景索引和场景名得到场景路径，并捕获错误
   var textInfo = textIndex[textName]
   if (!textInfo) {
@@ -185,7 +187,7 @@ async function loadSubText(textName){
   // 获得两个子块并清空其中的内容
   const [oSubTextRule, oSubTextAction] = Array.from(oSubTextArea.children);
   //[oMainTextHead, oMainTextContent, oMainTextJump].forEach(el => el.replaceChildren());
-  oSubTextRule.replaceChildren(); // 规则区清空，行动区持续展示；特殊场景特殊显示
+  // 规则区清空，行动区持续展示；特殊场景特殊显示
 
   try{
     // 缓存机制
@@ -198,19 +200,33 @@ async function loadSubText(textName){
     }
     // 加载场景
     const mytext = fileCache[filePath];
-    const textData = mytext[textInfo.key];
+    const textData = mytext[textInfo.key].join("</br>");
 
     if(textData){
-      for(var i=0; i < textData.length ; i++){
-        var oRules = document.createElement("p");
-        oRules.innerHTML = textData[i];
-        oRules.className = "战斗规则";
-        oSubTextRule.appendChild(oRules);
+      if(textName == "rule_mode"){
+        oSubTextRule.replaceChildren();// 注意退出回合时要清空规则区；
+        oSubTextRule.innerHTML = textData;
+      }else{
+        oActions = document.createElement("p");
+        oActions.innerText = textData+target;
+        oSubTextAction.appendChild(oActions);
       }
     }
+
     console.log("数据加载成功", textData);
   }catch(error){
     console.log("出现错误：", error);
     alert('加载文内容失败，请检查控制台。');
   }
 }
+
+/*"你来到了某某地——委托给加载场景函数",
+"你攻击了某某魔物",
+"你友好对待某某魔物",
+"你采摘/挖掘了某某特产",
+"你购买了某某物品",
+"你装备了某某武备",
+"你烹饪了某某菜品"*/
+
+
+
