@@ -8,12 +8,16 @@ async function bigWorldInteraction(event){
 
   if(target.tagName != "SPAN"){return;}
   if(target.classList.contains("魔物")){
-    // 异步加载战斗场景
+    // 异步加载战斗场景，创建牌桌
     await loadScene("战斗");
     // 禁用回退
     isBFDisabled = true;
-    // 创建牌桌
-    await createMahjongTable(target);
+    // 战斗双方入场
+    // 把target放入对手场地// oMonster.innerHTML = target.outerHTML;  有隐患，注意安全问题，以及逐渐寻找更好的方案
+    oMonsterArea = document.getElementById("对手场地")
+    oMonsterArea.innerHTML = target.outerHTML;
+    oPlayerArea = document.getElementById("玩家场地")
+    oPlayerArea.innerText = "代号：玩家的名字";
     // 开始战斗回合
 
     console.log("触发了战斗：", target.innerText);
@@ -23,22 +27,16 @@ async function bigWorldInteraction(event){
   }
 }
 
-async function createMahjongTable(target){
-    const oCombatScene = document.getElementById("主文本内容区");
-    oCombatScene.className = "战斗场景"
-    const oCombatChoose = document.getElementById("主文本跳转区");
-    oCombatChoose.className = "战斗选择"
+// 创建牌桌和手牌
+async function createMahjongTable(oContent, oJump, combat_scene){
+    oContent.className = "战斗场景";
+    oJump.className = "战斗选择";
 
-    const oMonster = document.getElementById("对手");
-    oMonster.innerHTML = target.outerHTML; // 有隐患，注意安全问题，以及逐渐寻找更好的方案
-    const oMonsterArea = oMonster.parentNode;
-    oMonsterArea.className = "对手场地";
+    oContent.innerHTML = combat_scene.descript;
+    const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oContent.children);
 
-    const oMahjongTable = document.getElementById("牌桌");
-    const oMahjongTableArea = oMahjongTable.parentNode;
-    oMahjongTableArea.className = "牌桌场地";
     // 牌桌上有双方各有5张牌；
-    const [oRuleDisplay, oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
+    const [oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
     const Cards = ["真", "真", "真", "假", "假"];
     for(var i=0; i<5; i++){
       const oPCard = document.createElement('div');
@@ -52,15 +50,10 @@ async function createMahjongTable(target){
     }
     // 回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
     // 规则展示区展示战斗规则和流程
-    await loadCombatRules(oRuleDisplay);
-
-    const oPlayer = document.getElementById("玩家");
-    oPlayer.innerText = "代号：玩家的名字";
-    const oPlayerArea = oPlayer.parentNode;
-    oPlayerArea.className = "玩家场地";
+    //await loadCombatRules();
 }
 
-async function loadCombatRules(oFather){
+async function loadCombatRules(){
   const sceneInfo = sceneIndex["战斗规则"]
   const filePath = sceneIndex.base_path + sceneInfo.file
   try{
@@ -76,12 +69,13 @@ async function loadCombatRules(oFather){
     const mytext = fileCache[filePath];
     const combat_rules_text = mytext["战斗规则"];
 
+    var oRuleDisplay = document.createElement("div");
     if(combat_rules_text){
       for(var i=0; i < combat_rules_text.length ; i++){
-        var oDescript = document.createElement("div");
-        oDescript.innerHTML = combat_rules_text[i];
-        oDescript.className = "战斗规则";
-        oFather.appendChild(oDescript);
+        var oRules = document.createElement("p");
+        oRules.innerHTML = combat_rules_text[i];
+        oRules.className = "战斗规则";
+        oRuleDisplay.appendChild(oRules);
       }
     }
     console.log("数据加载成功", combat_rules_text);

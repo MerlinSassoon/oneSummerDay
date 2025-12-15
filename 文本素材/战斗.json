@@ -1,11 +1,8 @@
 {
   "战斗": {
     "name": "战斗",
-    "descript": [
-      "<div id='对手'></div>",
-      "<div id='牌桌'><div id='规则展示区'></div><div id='对手手牌区' class='手牌区'></div><div id='回合指示区'></div><div id='玩家手牌区' class='手牌区'></div></div>",
-      "<div id='玩家'></div>"
-    ],
+    "descript":
+      "<div id='对手场地'></div><div id='牌桌场地'><div id='对手手牌区' class='手牌区'></div><div id='回合指示区'></div><div id='玩家手牌区' class='手牌区'></div></div><div id='玩家场地'></div>",
     "road": ["剪刀", "石头", "布"]
   },
   "战斗规则": [
@@ -17,4 +14,3 @@
     "5.出手型：牌手依次出最终手型，并做回合结算"
   ]
 }
-

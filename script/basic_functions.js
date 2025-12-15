@@ -59,18 +59,21 @@ async function loadMainText(sceneName, ){
     }
     // 加载场景
     const mytext = fileCache[filePath];
-    const sceneData = mytext[sceneInfo.key]
+    const sceneData = mytext[sceneInfo.key];
 
-    // 主文本内容区，分段落加载主文本内容
-    if(sceneData.descript){
-      for(var i=0; i < sceneData.descript.length ; i++){
-        var oDescript = document.createElement("div");
-        oDescript.innerHTML = sceneData.descript[i];
-        oDescript.className = "主文本内容";
-        oMainTextContent.appendChild(oDescript);
+    if(sceneInfo.key == "战斗"){
+      await createMahjongTable(oMainTextContent, oMainTextJump, sceneData); // 手动创建战斗场景和牌桌，json存储的信息作为”统一、样板“存在
+    }else{
+      // 主文本内容区，分段落加载主文本内容
+      if(sceneData.descript){
+        for(var i=0; i < sceneData.descript.length ; i++){
+          const oDescript = document.createElement("p");
+          oDescript.innerHTML = sceneData.descript[i];
+          oDescript.className = "主文本内容";
+          oMainTextContent.appendChild(oDescript);
+        }
       }
     }
-
     // 主文本跳转区，前往本场景有道路连接的位置
     loadRoadButton(oMainTextJump, sceneData.road);
     // 回头机制：在Road上滑动，并且Road不改变，绑定至按键事件

@@ -26,6 +26,7 @@
 
 /* 战斗场景 */
 .战斗场景 {
+  /* flex容器，竖轴做主轴，竖轴方向两端贴紧元素分隔，横轴做交叉轴，横轴方向居中对齐 */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -35,34 +36,32 @@
 .战斗选择 {
   height: 100px;
 }
-.对手场地 {
+#对手场地 {
+  /* flex成员,横轴方向右对齐，空间固定 */
   margin: 0px 10px 20px 10px;
   align-self: flex-end;
   flex: none;
 }
-#对手 {
-  text-align: right;
-}
-#对手 span{
+#对手场地 span{
   font-size: 20px;
 }
-.牌桌场地 {
-  width: 100%;
+#牌桌场地 {
+  /* flex成员，空间灵活 */
   flex: auto;
-}
-#牌桌 {
-  width: 100%;
+  /* 自身样式 */
+  width: 95%;
   height: 100%;
   background-color: #3A5F3A;
   border: 5px solid #D4AF37;
   border-radius: 20px;
   box-shadow: 3px 3px 10px rgba(20,20,30,0.35);
-
-  display: flex;/* 牌桌主轴竖轴，两端贴紧，交叉轴横轴，居中对齐 */
+  /* flex容器，竖轴做主轴，竖轴方向两端贴紧元素分隔，横轴做交叉轴，横轴方向居中对齐 */
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
 }
+
 #规则展示区 {
   position: absolute;
   top: 150px;
@@ -72,8 +71,10 @@
   color: white;
   font-size: 10px;
 }
+
+/* 手牌区相同样式 */
 .手牌区 {
-  /* 内部手牌主轴横轴，左对齐；交叉轴竖轴，居中对齐 */
+  /* flex容器，横轴做主轴，横轴方向左对齐，竖轴做交叉轴，竖轴方向居中对齐，元素间隔10px */
   display: flex;
   gap: 10px;
   align-items: center;
@@ -86,28 +87,31 @@
   border-radius: 10px;
 }
 #对手手牌区 {
+  /* flex容器，独立设置横轴方向右对齐 */
+  justify-content: flex-end;
+  /* flex成员，独立设置在牌桌上右对齐；空间固定 */
   align-self: flex-end;
   flex: none;
-
-  justify-content: flex-end;
 }
 #回合指示区 {
+  /* flex成员，空间灵活 */
   flex: auto;
-
+  /* flex容器，横轴做主轴，横轴方向居中对齐；竖轴做交叉轴，竖轴方向居中对齐 */
   display: flex;
   justify-content: center;
   align-items: center;
-
+  /* 自身样式*/
   color: white;
   font-size: 25px;
   font-weight: bolder;
 }
 #玩家手牌区 {
-  /* 本区单独横轴左对齐 */
+  /* flex成员，独立设置在牌桌上左对齐；空间固定 */
   align-self: flex-start;
   flex: none;
 }
 .手牌 {
+  /* 自身样式 */
   width: 60px;
   height: 100px;
   background-color: #B87333;
@@ -116,17 +120,18 @@
   font-size: 35px;
   font-family: cursive;
   color: #E8F4F8;
-
+  /* flex容器，横轴做主轴，横轴方向居中对齐；竖轴做交叉轴，竖轴方向居中对齐 */
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.玩家场地 {
-  margin: 30px 10px;
+
+#玩家场地 {
+  /* flex成员，独立设置在牌桌上左对齐；空间固定 */
   align-self: flex-start;
   flex: none;
-}
-#玩家 {
+  /* 自身样式 */
+  margin: 30px 10px;
   text-align: left;
   font-size: 20px;
 }
