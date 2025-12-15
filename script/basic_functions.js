@@ -3,6 +3,7 @@ let sceneRoad = [START_SCENE, ];  // 路径栈
 let currentPointer = 0;           // 起始指针
 let fileCache = {};               // 场景缓存
 let sceneIndex = null;            // 场景索引预载
+let textIndex = null;             //说明索引预载
 let isBFDisabled = false;         // 前进后退是否不可用
 
 // 加载图片作为图标，arr_icon是一个列表，输入元素；id_parent用来选择父元素；class_name用来动态添加CSS样式；
@@ -18,12 +19,14 @@ function IconGeneration(arr_icon, id_parent, class_name){
 }
 
 
-//加载场景索引，挂载本地全局
+//加载场景索引和说明索引，挂载本地全局
 async function loadIndex(){
-    const response = await fetch("文本素材/场景.json");
-    sceneIndex = await response.json()
+    const response_scene = await fetch("文本素材/场景索引.json");
+    sceneIndex = await response_scene.json();
+    const response_text = await fetch("文本素材/说明索引.json");
+    textIndex = await response_text.json();
 }
-// 加载场景
+// 加载主文本
 async function loadMainText(sceneName, ){
   // 通过场景索引和场景名得到场景路径，并捕获错误
   var sceneInfo = sceneIndex[sceneName]
@@ -164,5 +167,50 @@ function loadForward(){
     }
   }else{
     console.log("前进后退被禁用");
+  }
+}
+
+// 加载副文本区
+async function loadSubText(textName){
+  // 通过场景索引和场景名得到场景路径，并捕获错误
+  var textInfo = textIndex[textName]
+  if (!textInfo) {
+    console.log(`${textName}：未能成功加载`);
+    return;
+  }
+  const filePath = textIndex.base_path + textInfo.file;
+
+  // 选择副文本区
+  const oSubTextArea = document.getElementById("副文本区");
+  // 获得两个子块并清空其中的内容
+  const [oSubTextRule, oSubTextAction] = Array.from(oSubTextArea.children);
+  //[oMainTextHead, oMainTextContent, oMainTextJump].forEach(el => el.replaceChildren());
+  oSubTextRule.replaceChildren(); // 规则区清空，行动区持续展示；特殊场景特殊显示
+
+  try{
+    // 缓存机制
+    if(!fileCache[filePath]){
+      console.log('🔄 加载文件:', filePath);
+      const response = await fetch(filePath);
+      fileCache[filePath] = await response.json();
+    }else{
+      console.log('⚡ 使用缓存:', filePath);
+    }
+    // 加载场景
+    const mytext = fileCache[filePath];
+    const textData = mytext[textInfo.key];
+
+    if(textData){
+      for(var i=0; i < textData.length ; i++){
+        var oRules = document.createElement("p");
+        oRules.innerHTML = textData[i];
+        oRules.className = "战斗规则";
+        oSubTextRule.appendChild(oRules);
+      }
+    }
+    console.log("数据加载成功", textData);
+  }catch(error){
+    console.log("出现错误：", error);
+    alert('加载文内容失败，请检查控制台。');
   }
 }

@@ -45,12 +45,13 @@
 
   <div id="文本区">
     <div id="副文本区" class="文本区" style="width: 30%; height: 625px;"><!-- 系统栏位和行动滚屏的切换 -->
-      系统栏位文件系统 OR 行动滚屏
+      <div id="副文本规则区" style="flex: none"></div>
+      <div id="副文本行动区" style="flex: auto; min-height: 0; overflow-y: auto;"></div>
     </div>
     <div id="主文本区" class="文本区" style="width: 67.2%; height: 625px;">
-      <div id="主文本标题区" style="flex-shrink: 0;"></div>
-      <div id="主文本内容区" style="flex: 1; min-height: 0; overflow-y: auto;"></div>
-      <div id="主文本跳转区" style="flex-shrink: 0; margin-top: auto;"></div>
+      <div id="主文本标题区" style="flex: none;"></div>
+      <div id="主文本内容区" style="flex: auto; min-height: 0; overflow-y: auto;"></div>
+      <div id="主文本跳转区" style="flex: none; margin-top: auto;"></div>
     </div>
   </div>
 

@@ -8,10 +8,6 @@
     "file": "战斗.json",
     "key": "战斗"
   },
-  "战斗规则": {
-    "file": "战斗.json",
-    "key": "combat_rules"
-  },
   "蒙德城": {
     "file": "城池.json",
     "key": "蒙德城"

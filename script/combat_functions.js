@@ -13,9 +13,8 @@ async function bigWorldInteraction(event){
     // 禁用回退
     isBFDisabled = true;
     // 战斗双方入场
-    // 把target放入对手场地// oMonster.innerHTML = target.outerHTML;  有隐患，注意安全问题，以及逐渐寻找更好的方案
     oMonsterArea = document.getElementById("对手场地")
-    oMonsterArea.innerHTML = target.outerHTML;
+    oMonsterArea.innerHTML = target.outerHTML; // 有隐患，注意安全问题，以及逐渐寻找更好的方案
     oPlayerArea = document.getElementById("玩家场地")
     oPlayerArea.innerText = "代号：玩家的名字";
     // 开始战斗回合
@@ -50,37 +49,5 @@ async function createMahjongTable(oContent, oJump, combat_scene){
     }
     // 回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
     // 规则展示区展示战斗规则和流程
-    //await loadCombatRules();
-}
-
-async function loadCombatRules(){
-  const sceneInfo = sceneIndex["战斗规则"]
-  const filePath = sceneIndex.base_path + sceneInfo.file
-  try{
-    // 缓存机制
-    if(!fileCache[filePath]){
-      console.log('🔄 加载文件:', filePath);
-      const response = await fetch(filePath);
-      fileCache[filePath] = await response.json();
-    }else{
-      console.log('⚡ 使用缓存:', filePath);
-    }
-    // 加载场景
-    const mytext = fileCache[filePath];
-    const combat_rules_text = mytext["战斗规则"];
-
-    var oRuleDisplay = document.createElement("div");
-    if(combat_rules_text){
-      for(var i=0; i < combat_rules_text.length ; i++){
-        var oRules = document.createElement("p");
-        oRules.innerHTML = combat_rules_text[i];
-        oRules.className = "战斗规则";
-        oRuleDisplay.appendChild(oRules);
-      }
-    }
-    console.log("数据加载成功", combat_rules_text);
-  }catch(error){
-    console.log("出现错误：", error);
-    alert('加载文内容失败，请检查控制台。');
-  }
+    await loadSubText("战斗规则");
 }
