@@ -102,6 +102,14 @@
 .round-tip.show{
   opacity: 1;
 }
+.高亮显示 {
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.8); /* 柔和金色光晕 */
+  transition: box-shadow 0.3s ease;
+}
+.高亮显示:hover {
+  box-shadow: 0 0 25px rgba(212, 175, 55, 1);
+}
 
 #玩家手牌区 {
   /* flex成员，独立设置在牌桌上左对齐；空间固定 */

@@ -3,8 +3,9 @@ let sceneRoad = [START_SCENE, ];  // 路径栈
 let currentPointer = 0;           // 起始指针
 let fileCache = {};               // 场景缓存
 let sceneIndex = null;            // 场景索引预载
-let textIndex = null;             //说明索引预载
+let textIndex = null;             // 说明索引预载
 let isBFDisabled = false;         // 前进后退是否不可用
+let active = "scene";             // 初始活动为场景
 
 // 加载图片作为图标，arr_icon是一个列表，输入元素；id_parent用来选择父元素；class_name用来动态添加CSS样式；
 function IconGeneration(arr_icon, id_parent, class_name){
@@ -65,7 +66,9 @@ async function loadMainText(sceneName, ){
     const sceneData = mytext[sceneInfo.key];
 
     if(sceneInfo.key == "战斗"){
-      await createMahjongTable(oMainTextContent, oMainTextJump, sceneData); // 手动创建战斗场景和牌桌，json存储的信息作为”统一、样板“存在
+      oMainTextContent.className = "战斗场景";
+      oMainTextJump.className = "战斗选择";
+      oMainTextContent.innerHTML = sceneData.descript; // 手动创建战斗场景和牌桌，json存储的信息作为”统一、样板“存在
     }else{
       // 主文本内容区，分段落加载主文本内容
       if(sceneData.descript){
@@ -101,7 +104,12 @@ function loadRoadButton(oFather, arr_roads){
       oBtnLi.innerText = "---"+arr_roads[i]+"---";
       oBtnLi.setAttribute("value", arr_roads[i]);
       oBtnLi.onclick = function(){
-        loadScene(this.getAttribute("value"));
+        if(active == "scene"){
+          loadScene(this.getAttribute("value"));
+        }else if(active == "combat"){
+          // 传递选择给某个函数
+        }
+
       };
       oBtnUl.appendChild(oBtnLi);
     }
