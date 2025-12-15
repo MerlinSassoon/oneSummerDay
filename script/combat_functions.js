@@ -27,13 +27,19 @@ async function combatRound(target){
   const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oContent.children);
   // 战斗双方入场
   oMonsterArea.innerHTML = target.outerHTML; // 有隐患，注意安全问题，以及逐渐寻找更好的方案
+  oMonster = oMonsterArea.children[0];
   oPlayerArea.innerHTML = "<span id='玩家'>代号：玩家的名字<span>";
+  oPlayer = oPlayerArea.children[0];
   // 创建牌桌
   const [oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
   await createMahjongTable(oMonsterCards, oPlayerCards);
   // 开始战斗回合
-  // 回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
-  combatStar(oRoundInstructions);
+  const roundTip = new RoundTip(oRoundInstructions);
+  // 回合一 ;回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
+  await roundTips(roundTip, "第一回合 开始！");
+  const oLeadingPlayer = await stepsTwo(oMonster, oPlayer);
+  await roundTips(roundTip, "随机先行牌手为："+oLeadingPlayer.innerText);
+  // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
 }
 
 // 创建牌桌和手牌
@@ -54,19 +60,26 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
   await loadSubText(["rule_mode", null]);
 }
 
-async function combatStar(oRoundInstructions){
+async function roundTips(roundTip, round){
   //回合指示区显示”回合开始“->回合开始消失->规则2高亮，随机函数选择战斗一方->规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
   //->规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮->规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
   //回合结算，按照三局两胜的规则重新开局
-  const roundTip = new RoundTip(oRoundInstructions);
-  await roundTip.show("一"); // 回合指示淡入淡出后销毁
+  await roundTip.show(round); // 回合指示淡入淡出后销毁
   roundTip.destroy();
+}
 
-  oRule_2 = document.getElementById("rule_2");
-  oRule_2.className = "高亮显示";
+async function stepsTwo(oMonster, oPlayer){
+  const oRule_2 = document.getElementById("rule_2");
+  oRule_2.classList.add("高亮显示");
+  oLeadingPlayer = await randomChooseOne(oMonster, oPlayer); // 选择完成后再去高亮
+  setTimeout(()=>{
+    oRule_2.classList.remove("高亮显示");
+  }, 3000);
+  return oLeadingPlayer;
+}
 
+function stepsThree(){
 
-  console.log('开始战斗逻辑');
 }
 
 // 回合指示器类
@@ -84,12 +97,12 @@ class RoundTip{
   }
 
   destroy(){
-    this.tip = null;
+    this.tip.innerText = "";
   }
 
   async show(roundNumber){
     return new Promise((resolve) => {
-      this.tip.innerText = `第${roundNumber}回合 开始！`;
+      this.tip.innerText = roundNumber;
 
       this.tip.classList.remove('show');
       requestAnimationFrame(() => {
