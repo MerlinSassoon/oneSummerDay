@@ -90,11 +90,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  /* 自身样式*/
+}
+/* 回合指示区内部样式 */
+.round-tip {
   color: white;
   font-size: 25px;
   font-weight: bolder;
+  opacity: 0;
+  transition : opacity 1s;
 }
+.round-tip.show{
+  opacity: 1;
+}
+
 #玩家手牌区 {
   /* flex成员，独立设置在牌桌上左对齐；空间固定 */
   align-self: flex-start;

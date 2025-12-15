@@ -58,11 +58,13 @@ async function combatStar(oRoundInstructions){
   //->规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮->规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
   //回合结算，按照三局两胜的规则重新开局
   const roundTip = new RoundTip(oRoundInstructions);
-  console.log("准备第 一 回合...");
+  console.log("准备第一回合...");
   await roundTip.show("一");
+  roundTip.destroy();
   console.log('开始战斗逻辑');
 }
 
+// 回合指示器类
 class RoundTip{
   constructor(oFather){
     this.tip = null;
@@ -74,29 +76,15 @@ class RoundTip{
     this.tip = document.createElement("span");
     this.tip.className = "round-tip";
     this.parent.appendChild(this.tip);
-    this.addStyles();
   }
 
-  addStyles(){
-    const oStyle = document.createElement("style");
-    oStyle.innerText = `
-      .round-tip {
-        color: white;
-        font-size: 25px;
-        font-weight: bolder;
-        opacity: 0;
-        transition : opacity 0.3s;
-      }
-      .round-tip.show{
-        opacity: 1;
-      }
-    `;
-    document.head.appendChild(oStyle);
+  destroy(){
+    this.parent.removeChild(this.tip);
   }
 
   async show(roundNumber){
     return new Promise((resolve) => {
-      this.tip.innerText = `第 ${roundNumber} 回合 开始！`;
+      this.tip.innerText = `第${roundNumber}回合 开始！`;
 
       this.tip.classList.remove('show');
       requestAnimationFrame(() => {
@@ -107,7 +95,7 @@ class RoundTip{
         this.tip.classList.remove("show");
         setTimeout(()=>{
           resolve();
-        }, 300);
+        }, 1000);
       }, 3000);
     });
   }
