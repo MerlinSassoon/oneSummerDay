@@ -62,16 +62,6 @@
   align-items: center;
 }
 
-#规则展示区 {
-  position: absolute;
-  top: 150px;
-  left: 160px;
-  width: 20%;
-  height: 40%;
-  color: white;
-  font-size: 10px;
-}
-
 /* 手牌区相同样式 */
 .手牌区 {
   /* flex容器，横轴做主轴，横轴方向左对齐，竖轴做交叉轴，竖轴方向居中对齐，元素间隔10px */

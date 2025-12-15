@@ -47,10 +47,68 @@ async function createMahjongTable(oContent, oJump, combat_scene){
       oMCard.className = "手牌";
       oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
     }
-    // 回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
     // 规则展示区展示战斗规则和流程
     await loadSubText(["rule_mode", null]);
+    // 回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
+    combatStar(oRoundInstructions);
 }
 
-function combatStar(){
+async function combatStar(oRoundInstructions){
+  //回合指示区显示”回合开始“->回合开始消失->规则2高亮，随机函数选择战斗一方->规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
+  //->规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮->规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
+  //回合结算，按照三局两胜的规则重新开局
+  const roundTip = new RoundTip(oRoundInstructions);
+  console.log("准备第 一 回合...");
+  await roundTip.show("一");
+  console.log('开始战斗逻辑');
+}
+
+class RoundTip{
+  constructor(oFather){
+    this.tip = null;
+    this.parent = oFather;
+    this.init();
+  }
+
+  init(){
+    this.tip = document.createElement("span");
+    this.tip.className = "round-tip";
+    this.parent.appendChild(this.tip);
+    this.addStyles();
+  }
+
+  addStyles(){
+    const oStyle = document.createElement("style");
+    oStyle.innerText = `
+      .round-tip {
+        color: white;
+        font-size: 25px;
+        font-weight: bolder;
+        opacity: 0;
+        transition : opacity 0.3s;
+      }
+      .round-tip.show{
+        opacity: 1;
+      }
+    `;
+    document.head.appendChild(oStyle);
+  }
+
+  async show(roundNumber){
+    return new Promise((resolve) => {
+      this.tip.innerText = `第 ${roundNumber} 回合 开始！`;
+
+      this.tip.classList.remove('show');
+      requestAnimationFrame(() => {
+          this.tip.classList.add('show');
+      });
+
+      setTimeout(()=>{
+        this.tip.classList.remove("show");
+        setTimeout(()=>{
+          resolve();
+        }, 300);
+      }, 3000);
+    });
+  }
 }
