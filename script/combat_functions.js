@@ -69,6 +69,7 @@ async function roundTips(roundTip, round){
 }
 
 async function stepsTwo(oMonster, oPlayer){
+  // 规则2高亮，随机函数选择战斗一方
   const oRule_2 = document.getElementById("rule_2");
   oRule_2.classList.add("高亮显示");
   oLeadingPlayer = await randomChooseOne(oMonster, oPlayer); // 选择完成后再去高亮
@@ -78,8 +79,11 @@ async function stepsTwo(oMonster, oPlayer){
   return oLeadingPlayer;
 }
 
-function stepsThree(){
-
+function stepsThree(oLeadingPlayer, roundTip){
+  // 规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
+  const oRule_3 = document.getElementById("rule_3");
+  oRule_3.classList.add("高亮显示");
+  await roundTips(roundTip, oLeadingPlayer.innerText+"选择手型");// 持续时间直到选择完毕，所以要再写一个show函数
 }
 
 // 回合指示器类
