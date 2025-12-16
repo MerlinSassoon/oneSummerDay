@@ -209,16 +209,17 @@ async function loadSubText(config){
     }
     // 加载场景
     const mytext = fileCache[filePath];
-    const textData = mytext[textInfo.key].join("</br>");
+    const textData = mytext[textInfo.key];
 
     if(textData){
       if(textName == "rule_mode"){
         oSubTextRule.replaceChildren();// 注意退出回合时要清空规则区；
-        oSubTextRule.innerHTML = textData;
+        for(var i=0; i<textData.length; i++){
+          oRules = createElementP(textData[i], "副文本内容 rule");
+          oSubTextRule.appendChild(oRules);
+        }
       }else{
-        oActions = document.createElement("p");
-        oActions.innerText = textData+target;
-        oActions.className = "副文本行动内容"
+        const oActions = createElementP(textData[0]+target, "副文本内容");
         oActionContent.appendChild(oActions);
       }
     }
@@ -229,6 +230,14 @@ async function loadSubText(config){
     alert('加载文内容失败，请检查控制台。');
   }
 }
+
+function createElementP(textContent, pClassName){
+  const oPs = document.createElement("p");
+  oPs.innerHTML = textContent;
+  oPs.className = pClassName;
+  return oPs;
+}
+
 
 /*"你来到了某某地——委托给加载场景函数",
 "你攻击了某某魔物",

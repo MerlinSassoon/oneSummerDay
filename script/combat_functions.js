@@ -23,8 +23,10 @@ async function bigWorldInteraction(event){
 }
 
 async function combatRound(target){
-  oContent = document.getElementById("主文本内容区");
+  const oContent = document.getElementById("主文本内容区");
+  const oJump = document.getElementById("主文本跳转区");
   const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oContent.children);
+  const [oTextJump] = Array.from(oJump.children);
   // 战斗双方入场
   oMonsterArea.innerHTML = target.outerHTML; // 有隐患，注意安全问题，以及逐渐寻找更好的方案
   oMonster = oMonsterArea.children[0];
@@ -37,12 +39,14 @@ async function combatRound(target){
   const roundTip = new RoundTip(oRoundInstructions);
   // 回合一 ;回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
   await roundTip.threeSecondsShow("第一回合 开始！"); // 回合指示淡入淡出后销毁
-  roundTip.destroy();
 
-  const oLeadingPlayer = await stepsTwo(oMonster, oPlayer);
+  const oRuleDisplay = document.getElementById("副文本规则区");
+  const [oRuleHead, oRuleOne, oRuleTwo, oRuleThree, oRuleFour, oRuleFive] = Array.from(oRuleDisplay.children);
+
+  const oLeadingPlayer = await stepsTwo(oMonster, oPlayer, oRuleTwo);
   await roundTip.threeSecondsShow("随机先行牌手为："+oLeadingPlayer.innerText);
 
-  await stepsThree(oLeadingPlayer, roundTip);
+  await stepsThree(oLeadingPlayer, roundTip, oRuleThree, oTextJump);
 
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
 }
@@ -72,27 +76,26 @@ async function roundTips(roundTip, round){
 
 }
 
-async function stepsTwo(oMonster, oPlayer){
+async function stepsTwo(oMonster, oPlayer, oRuleTwo){
   // 规则2高亮，随机函数选择战斗一方
-  const oRule_2 = document.getElementById("rule_2");
-  oRule_2.classList.add("高亮显示");
+  oRuleTwo.classList.add("高亮显示");
   oLeadingPlayer = await randomChooseOne(oMonster, oPlayer); // 选择完成后再去高亮
   setTimeout(()=>{
-    oRule_2.classList.remove("高亮显示");
+    oRuleTwo.classList.remove("高亮显示");
   }, 3000);
   return oLeadingPlayer;
 }
 
-async function stepsThree(oLeadingPlayer, roundTip){
+async function stepsThree(oLeadingPlayer, roundTip, oRuleThree, oTextJump){
   // 规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
-  const oRule_3 = document.getElementById("rule_3");
-  oRule_3.classList.add("高亮显示");
+  oRuleThree.classList.add("高亮显示");
+  oTextJump.classList.add("高亮显示");
   const controller = await roundTip.controllerShow(oLeadingPlayer.innerText+"选择手型");
-  setTimeout(async ()=>{
+  /*setTimeout(async ()=>{
     console.log("3s过去了", controller);
     await controller.finish();
     console.log("提示已完全消失");
-  }, 3000);
+  }, 3000);*/
 }
 
 // 回合指示器类

@@ -103,7 +103,7 @@
   opacity: 1;
 }
 .rule {
-  transition: box-shadow 0.5s ease;
+  transition: box-shadow 0.5s ease; /*考虑和副文本内容放一起*/
 }
 .高亮显示 {
   border-radius: 5px;
