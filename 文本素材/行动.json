@@ -1,4 +1,5 @@
 {
-  "scene_mode": ["你来到了"],
-  "combat_mode": ["你攻击了"]
+  "scene": ["你来到了"],
+  "combat": ["你攻击了"],
+  "handShape": ["你选择的手型是："]
 }

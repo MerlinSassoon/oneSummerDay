@@ -17,7 +17,7 @@
 
       await loadIndex();
       await loadMainText(START_SCENE);
-      await loadSubText(["scene_mode", START_SCENE]);
+      await loadSubText(["scene", START_SCENE]);
 
       const oMainTextArea = document.getElementById("主文本区")
       oMainTextArea.addEventListener("click", await bigWorldInteraction, false);

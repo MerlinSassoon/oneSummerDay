@@ -1,11 +1,19 @@
 {
   "base_path" : "文本素材/",
-  "rule_mode": {
+  "rule": {
     "file": "战斗.json",
     "key": "战斗规则"
   },
-  "scene_mode": {
+  "scene": {
     "file": "行动.json",
-    "key": "scene_mode"
+    "key": "scene"
+  },
+  "combat": {
+    "file": "行动.json",
+    "key": "combat"
+  },
+  "handShape": {
+    "file": "行动.json",
+    "key": "handShape"
   }
 }

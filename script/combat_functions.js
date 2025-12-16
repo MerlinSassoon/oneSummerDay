@@ -9,10 +9,9 @@ async function bigWorldInteraction(event){
   if(target.tagName != "SPAN"){return;}
   if(target.classList.contains("魔物")){
     // 异步加载战斗场景
-    await loadScene("战斗");
+    await loadScene("战斗", "combat", target.innerText);
     // 禁用回退
     isBFDisabled = true;
-    active = "combat";
     // 进行战斗回合
     combatRound(target);
     console.log("触发了战斗：", target.innerText);

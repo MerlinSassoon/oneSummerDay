@@ -3,7 +3,7 @@
     "name": "战斗",
     "descript":
       "<div id='对手场地'></div><div id='牌桌场地'><div id='对手手牌区' class='手牌区'></div><div id='回合指示区'></div><div id='玩家手牌区' class='手牌区'></div></div><div id='玩家场地'></div>",
-    "road": ["剪刀", "石头", "布"]
+    "road": ["handShape", "剪刀", "石头", "布"]
   },
   "战斗规则": [
     "<span style='font-weight: bolder'>剪刀石头布（真假话版）</span>",

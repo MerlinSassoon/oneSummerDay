@@ -5,7 +5,6 @@ let fileCache = {};               // 场景缓存
 let sceneIndex = null;            // 场景索引预载
 let textIndex = null;             // 说明索引预载
 let isBFDisabled = false;         // 前进后退是否不可用
-let active = "scene";             // 初始活动为场景
 
 // 加载图片作为图标，arr_icon是一个列表，输入元素；id_parent用来选择父元素；class_name用来动态添加CSS样式；
 function IconGeneration(arr_icon, id_parent, class_name){
@@ -94,22 +93,18 @@ async function loadMainText(sceneName, ){
 
 
 //加载新场景按钮，前往本场景有道路连接的位置
-function loadRoadButton(oFather, arr_roads){
+function loadRoadButton(oFather, arr_roads){ // 在road[0]的位置放入路径类型来避免全局变量
   if(arr_roads){
-    var oBtnUl = document.createElement("ul");
+    const oBtnUl = document.createElement("ul");
     oBtnUl.className = "主文本跳转";
 
-    for(var i=0; i< arr_roads.length; i++){
+    const buttonActive = arr_roads[0];
+    for(var i=1; i< arr_roads.length; i++){
       var oBtnLi = document.createElement("li");
       oBtnLi.innerText = "---"+arr_roads[i]+"---";
       oBtnLi.setAttribute("value", arr_roads[i]);
-      oBtnLi.onclick = function(){
-        if(active == "scene"){
-          loadScene(this.getAttribute("value"));
-        }else if(active == "combat"){
-          // 传递选择给某个函数
-        }
-
+      oBtnLi.onclick = async function(){
+        await loadScene(this.getAttribute("value"), buttonActive);
       };
       oBtnUl.appendChild(oBtnLi);
     }
@@ -118,7 +113,28 @@ function loadRoadButton(oFather, arr_roads){
 }
 
 // 加载场景
-async function loadScene(button_value){
+// 1.点击场景按钮切换场景p,m,s
+// 2.点击主文本唤醒战斗p,m,s
+// 3.点击手型按钮实现选择s
+async function loadScene(target_value, buttonActive, combat_target=null){
+  if(buttonActive != "handShape"){
+    // 场景道路压栈
+    await pushRoadStack(target_value);
+    // 加载主文本
+    await loadMainText(target_value);
+    // 加载副文本
+  }
+
+  if(!combat_target){
+    await loadSubText([buttonActive, target_value]);
+  }else{
+    await loadSubText([buttonActive, combat_target]);
+    await loadSubText(['rule', target_value]);
+  }
+}
+
+
+async function pushRoadStack(button_value){
   // 如果新场景在本场景路径的附近（前后）,则不压入新场景
   if(currentPointer > 0 && sceneRoad[currentPointer-1] === button_value){
     currentPointer--;
@@ -131,7 +147,7 @@ async function loadScene(button_value){
     if(currentPointer < sceneRoad.length - 1){
       sceneRoad = sceneRoad.slice(0, currentPointer+1)
     }
-    // 压入新场景,场景记忆只有5步
+    // 压入新道路,场景记忆只有5步
     sceneRoad.push(button_value);
     if(currentPointer >= 4){
       sceneRoad.shift();
@@ -139,10 +155,8 @@ async function loadScene(button_value){
       currentPointer++;
     }
   }
-  // 加载新场景
-  await loadMainText(button_value);
-  await loadSubText(["scene_mode", button_value]);
-  console.log("newRoad:", button_value);
+  // 新道路压栈
+  console.log("pushNewRoad:", button_value);
 }
 
 function bindBF(){
@@ -212,7 +226,7 @@ async function loadSubText(config){
     const textData = mytext[textInfo.key];
 
     if(textData){
-      if(textName == "rule_mode"){
+      if(textName == "rule"){
         oSubTextRule.replaceChildren();// 注意退出回合时要清空规则区；
         for(var i=0; i<textData.length; i++){
           oRules = createElementP(textData[i], "副文本内容 rule");
