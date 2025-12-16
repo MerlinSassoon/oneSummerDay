@@ -49,7 +49,7 @@ async function combatRound(target){
 
   await stepsThree(roundTip, oRuleThree, oTextJump);
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
-  //await stepsFour(roundTips, oRuleFour, oMonsterCards, oPlayerCards);
+  await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards);
 }
 
 // 创建牌桌和手牌
@@ -65,6 +65,7 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
 
     const oMCard = document.createElement('div');
     oMCard.className = "心牌";
+    oMCard.setAttribute("value", Cards[i]);
     oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
   }
   // 规则展示区展示战斗规则和流程
@@ -175,6 +176,13 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
   // 规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮
   oRuleFour.classList.add("高亮显示");
 
+  const pHeartCard = stepPlayer(stepFourPlayer, [roundTip, oPlayerCards]);
+  const mHeartCard = stepMonster(stepFourMonster, [roundTip, oMonsterCards]);
+
+  await Promise.all([pHeartCard, mHeartCard]);
+  oRuleFour.classList.remove("高亮显示");
+  console.log("提示已完全消失");
+
   async function stepFourPlayer(parameters){
     //我方操作：牌区高亮，牌可点击，有hover效果，点击完成去掉hover效果；
     const [roundTip, oPlayerCards] = parameters;
@@ -182,28 +190,29 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
     oPlayerCards.classList.add("高亮显示");
     const oCards = oPlayerCards.children;
     for(var i=0; i<oCards.length; i++){
-      oCards.classList.add("可选心牌");
+      oCards[i].classList.add("可选心牌");
     }
     // 人类操作
     const playerCard = await waitForPlayerClick(["heartCard","可选心牌"]);
     // 收尾
     controller.finish();
     for(var i=0; i<oCards.length; i++){
-      oCards.classList.remove("可选心牌");
+      oCards[i].classList.remove("可选心牌");
     }
     oPlayerCards.classList.remove("高亮显示");
     return playerCard;
   }
-
   async function stepFourMonster(parameters){
     //对方操作：牌区高亮，等待2s，选牌，副文本区公示
     const [roundTip, oMonsterCards] = parameters;
     const controller = await roundTip.controllerShow("对方选择心牌");
-    oMonsterCards.classList.add("高亮显示");
-    await sleep(2000);
+
+    await sleep(3000);
     const oCards = oMonsterCards.children;
     const monsterCard = randomChooseOne(oCards);
-    await loadSubText(["heartCard", monsterCard.value]);
+    controller.finish();
+    await loadSubText(["heartCard", "暂时保密"]);// 双方心牌保密
+    return monsterCard;
   }
 }
 
