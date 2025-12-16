@@ -60,6 +60,7 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
     const oPCard = document.createElement('div');
     oPCard.innerText = Cards[i];
     oPCard.className = "心牌";
+    oPCard.setAttribute("value", Cards[i]);
     oPlayerCards.appendChild(oPCard);
 
     const oMCard = document.createElement('div');
