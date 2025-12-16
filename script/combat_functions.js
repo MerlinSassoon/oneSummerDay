@@ -48,7 +48,6 @@ async function combatRound(target){
   await roundTip.threeSecondsShow("随机先手为：" + leadingPlayer);
 
   await stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump);
-
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
 }
 
@@ -95,36 +94,37 @@ async function stepsTwo(oRuleTwo){
 async function stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump){
   // 规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
   oRuleThree.classList.add("高亮显示");
-  const controller = await roundTip.controllerShow("");
   console.log("isPlayerLeading:", isPlayerLeading);
 
-  const pHandShapeOne = stepPlayer(stepThreePlayer, controller, oTextJump);
-  const mHandShapeOne = stepMonster(stepThreeMonster, controller, oTextJump);
+  const pHandShapeOne = stepPlayer(stepThreePlayer, oTextJump);
+  const mHandShapeOne = stepMonster(stepThreeMonster, oTextJump);
 
-  //await controller.finish();
-  //console.log("提示已完全消失");
+  await Promise.all([pHandShapeOne, mHandShapeOne]);
 
+  oRuleThree.classList.remove("高亮显示");
+  console.log("提示已完全消失");
 
-
-  async function stepThreePlayer(controller, oTextJump){
+  async function stepThreePlayer(oTextJump){
     // 我方操作：手型区高亮，手型区绑定解锁，选择手型，副文本区报手型
-    controller.updateText("我方选择手型");
+    const controller = await roundTip.controllerShow("我方选择手型");
     oTextJump.classList.add("高亮显示");
     enableLiHover();
     isBtnDisabled = false;
     // 人类的操作空间
     const clickedElement = await waitForPlayerClick("跳转单元格");
+    controller.finish();
     return clickedElement.value;
   }
-  async function stepThreeMonster(controller, oTextJump){
+  async function stepThreeMonster(oTextJump){
     // 对方操作：手型区锁定，随机选择手型，副文本区报手型
     isBtnDisabled = true;
-    controller.updateText("对方选择手型");
+    const controller = await roundTip.controllerShow("对方选择手型");
     oTextJump.classList.remove("高亮显示");
     await sleep(3000);
 
     const monsterShape = randomChooseOne(["剪刀", "石头", "布"]);
-    loadSubText(['handShape', monsterShape]);
+    await loadSubText(['handShape', monsterShape]);
+    await controller.finish();
     return monsterShape;
   }
   /*setTimeout(async ()=>{
@@ -134,11 +134,11 @@ async function stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump){
   }, 3000);*/
 }
 
-async function stepPlayer(specific, controller, oTextJump){
+async function stepPlayer(specific, oTextJump){
   await waitForCondition(() => isPlayerLeading);
   console.log("我方开始操作");
   // 我方具体操作
-  const result = await specific(controller, oTextJump);
+  const result = await specific(oTextJump);
   // 善后
   isBtnDisabled = true;
   oTextJump.classList.remove("高亮显示");
@@ -148,11 +148,11 @@ async function stepPlayer(specific, controller, oTextJump){
   return result;
 }
 
-async function stepMonster(specific, controller, oTextJump){
+async function stepMonster(specific, oTextJump){
   await waitForCondition(() => !isPlayerLeading);
   console.log("对方开始操作");
   // 对方具体操作
-  const result = await specific(controller, oTextJump);
+  const result = await specific(oTextJump);
   isPlayerLeading = true;
   console.log("对方结束操作");
   return result;
@@ -168,7 +168,6 @@ async function waitForPlayerClick(findClass){
   return new Promise((resolve) => {
     document.addEventListener("click", function onClickHandler(event){
       const target = event.target;
-      console.log("我点击了");
       if (target.classList.contains(findClass)){
         document.removeEventListener('click', onClickHandler);
         resolve(target);
@@ -226,9 +225,12 @@ class RoundTip{
 
       const controller = {
         finish: () => {
+          console.log("🟢 controller.finish() 被调用");
           return new Promise((finishResolve) => {
+            console.log("⏳ 开始执行清理动画...");
             this.tip.classList.remove("show");
             setTimeout(()=>{
+              console.log("✅ 清理完成", this.tip.outerHTML);
               resolve();
               finishResolve();
             }, 1000);
