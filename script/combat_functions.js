@@ -36,9 +36,14 @@ async function combatRound(target){
   // 开始战斗回合
   const roundTip = new RoundTip(oRoundInstructions);
   // 回合一 ;回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
-  await roundTips(roundTip, "第一回合 开始！");
+  await roundTip.threeSecondsShow("第一回合 开始！"); // 回合指示淡入淡出后销毁
+  roundTip.destroy();
+
   const oLeadingPlayer = await stepsTwo(oMonster, oPlayer);
-  await roundTips(roundTip, "随机先行牌手为："+oLeadingPlayer.innerText);
+  await roundTip.threeSecondsShow("随机先行牌手为："+oLeadingPlayer.innerText);
+
+  await stepsThree(oLeadingPlayer, roundTip);
+
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
 }
 
@@ -64,8 +69,7 @@ async function roundTips(roundTip, round){
   //回合指示区显示”回合开始“->回合开始消失->规则2高亮，随机函数选择战斗一方->规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
   //->规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮->规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
   //回合结算，按照三局两胜的规则重新开局
-  await roundTip.show(round); // 回合指示淡入淡出后销毁
-  roundTip.destroy();
+
 }
 
 async function stepsTwo(oMonster, oPlayer){
@@ -83,7 +87,12 @@ async function stepsThree(oLeadingPlayer, roundTip){
   // 规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
   const oRule_3 = document.getElementById("rule_3");
   oRule_3.classList.add("高亮显示");
-  await roundTips(roundTip, oLeadingPlayer.innerText+"选择手型");// 持续时间直到选择完毕，所以要再写一个show函数
+  const controller = await roundTip.controllerShow(oLeadingPlayer.innerText+"选择手型");
+  setTimeout(async ()=>{
+    console.log("3s过去了", controller);
+    await controller.finish();
+    console.log("提示已完全消失");
+  }, 3000);
 }
 
 // 回合指示器类
@@ -104,9 +113,9 @@ class RoundTip{
     this.tip.innerText = "";
   }
 
-  async show(roundNumber){
+  async threeSecondsShow(roundText){
     return new Promise((resolve) => {
-      this.tip.innerText = roundNumber;
+      this.tip.innerText = roundText;
 
       this.tip.classList.remove('show');
       requestAnimationFrame(() => {
@@ -119,6 +128,40 @@ class RoundTip{
           resolve();
         }, 1000);
       }, 3000);
+    });
+  }
+
+  async controllerShow(roundText){
+    return new Promise((resolve) => {
+      this.tip.innerText = roundText;
+
+      this.tip.classList.remove('show');
+      requestAnimationFrame(() => {
+          this.tip.classList.add('show');
+      });
+
+      const controller = {
+        finish: () => {
+          return new Promise((finishResolve) => {
+            this.tip.classList.remove("show");
+            setTimeout(()=>{
+              resolve();
+              finishResolve();
+            }, 1000);
+          });
+        },
+        cancel: () => {
+          this.tip.classList.remove("show");
+          setTimeout(()=>{
+            resolve();
+          }, 1000);
+        },
+        updateText: () => {
+          this.tip.innerText = newText;
+        }
+      };
+
+      resolve(controller);
     });
   }
 }
