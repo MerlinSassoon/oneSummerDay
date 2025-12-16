@@ -5,6 +5,7 @@ let fileCache = {};               // 场景缓存
 let sceneIndex = null;            // 场景索引预载
 let textIndex = null;             // 说明索引预载
 let isBFDisabled = false;         // 前进后退是否不可用
+let isBtnDisabled = false;        // 跳转按钮是否不可用
 
 // 加载图片作为图标，arr_icon是一个列表，输入元素；id_parent用来选择父元素；class_name用来动态添加CSS样式；
 function IconGeneration(arr_icon, id_parent, class_name){
@@ -102,9 +103,12 @@ function loadRoadButton(oFather, arr_roads){ // 在road[0]的位置放入路径�
     for(var i=1; i< arr_roads.length; i++){
       var oBtnLi = document.createElement("li");
       oBtnLi.innerText = "---"+arr_roads[i]+"---";
+      oBtnLi.className = "跳转单元格 可选按钮";
       oBtnLi.setAttribute("value", arr_roads[i]);
       oBtnLi.onclick = async function(){
-        await loadScene(this.getAttribute("value"), buttonActive);
+        if(!isBtnDisabled){
+          await loadScene(this.getAttribute("value"), buttonActive);
+        }
       };
       oBtnUl.appendChild(oBtnLi);
     }
@@ -129,7 +133,6 @@ async function loadScene(target_value, buttonActive, combat_target=null){
     await loadSubText([buttonActive, target_value]);
   }else{
     await loadSubText([buttonActive, combat_target]);
-    await loadSubText(['rule', target_value]);
   }
 }
 
@@ -251,7 +254,6 @@ function createElementP(textContent, pClassName){
   oPs.className = pClassName;
   return oPs;
 }
-
 
 /*"你来到了某某地——委托给加载场景函数",
 "你攻击了某某魔物",

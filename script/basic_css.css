@@ -53,7 +53,7 @@ body{
   list-style-type: none;
 }
 /* 跳转按钮动态展示 */
-li:hover{
+.可选按钮:hover{
   background-color: #f5f5f5;
   color: #000000;
   font-size: 18px;

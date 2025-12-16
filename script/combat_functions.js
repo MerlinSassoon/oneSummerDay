@@ -2,6 +2,7 @@
 // 先声明出什么，再选择真假话；3真2假
 // a：本次我出“布”；b：本次我出“剪刀”；
 // 战斗结束前禁用回退（  ）；结束战斗回合时需要去掉主文本内容区的”战斗场景“class
+let isPlayerLeading = null; // 玩家先手吗
 
 async function bigWorldInteraction(event){
   const target = event.target;
@@ -10,8 +11,10 @@ async function bigWorldInteraction(event){
   if(target.classList.contains("魔物")){
     // 异步加载战斗场景
     await loadScene("战斗", "combat", target.innerText);
-    // 禁用回退
+    // 禁用回退和跳转单元格
     isBFDisabled = true;
+    isBtnDisabled = true;
+    disabledLiHover();
     // 进行战斗回合
     combatRound(target);
     console.log("触发了战斗：", target.innerText);
@@ -22,10 +25,9 @@ async function bigWorldInteraction(event){
 }
 
 async function combatRound(target){
-  const oContent = document.getElementById("主文本内容区");
-  const oJump = document.getElementById("主文本跳转区");
-  const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oContent.children);
-  const [oTextJump] = Array.from(oJump.children);
+  const oTextContent = document.getElementById("主文本内容区");
+  const oTextJump = document.getElementById("主文本跳转区");
+  const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oTextContent.children);
   // 战斗双方入场
   oMonsterArea.innerHTML = target.outerHTML; // 有隐患，注意安全问题，以及逐渐寻找更好的方案
   oMonster = oMonsterArea.children[0];
@@ -42,10 +44,10 @@ async function combatRound(target){
   const oRuleDisplay = document.getElementById("副文本规则区");
   const [oRuleHead, oRuleOne, oRuleTwo, oRuleThree, oRuleFour, oRuleFive] = Array.from(oRuleDisplay.children);
 
-  const oLeadingPlayer = await stepsTwo(oMonster, oPlayer, oRuleTwo);
-  await roundTip.threeSecondsShow("随机先行牌手为："+oLeadingPlayer.innerText);
+  const leadingPlayer = await stepsTwo(oRuleTwo);
+  await roundTip.threeSecondsShow("随机先手为：" + leadingPlayer);
 
-  await stepsThree(oLeadingPlayer, roundTip, oRuleThree, oTextJump);
+  await stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump);
 
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
 }
@@ -65,7 +67,7 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
     oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
   }
   // 规则展示区展示战斗规则和流程
-  await loadSubText(["rule_mode", null]);
+  await loadSubText(["rule", null]);
 }
 
 async function roundTips(roundTip, round){
@@ -75,27 +77,107 @@ async function roundTips(roundTip, round){
 
 }
 
-async function stepsTwo(oMonster, oPlayer, oRuleTwo){
+async function stepsTwo(oRuleTwo){
   // 规则2高亮，随机函数选择战斗一方
   oRuleTwo.classList.add("高亮显示");
-  oLeadingPlayer = await randomChooseOne(oMonster, oPlayer); // 选择完成后再去高亮
+  isPlayerLeading = await randomChooseOne([true, false]); // 选择完成后再去高亮
+
   setTimeout(()=>{
     oRuleTwo.classList.remove("高亮显示");
   }, 3000);
-  return oLeadingPlayer;
+  if(isPlayerLeading){
+    return "我方";
+  }else{
+    return "对方";
+  }
 }
 
-async function stepsThree(oLeadingPlayer, roundTip, oRuleThree, oTextJump){
+async function stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump){
   // 规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
   oRuleThree.classList.add("高亮显示");
-  oTextJump.classList.add("高亮显示");
-  const controller = await roundTip.controllerShow(oLeadingPlayer.innerText+"选择手型");
+  const controller = await roundTip.controllerShow("");
+  console.log("isPlayerLeading:", isPlayerLeading);
+
+  const pHandShapeOne = stepPlayer(stepThreePlayer, controller, oTextJump);
+  const mHandShapeOne = stepMonster(stepThreeMonster, controller, oTextJump);
+
+  //await controller.finish();
+  //console.log("提示已完全消失");
+
+
+
+  async function stepThreePlayer(controller, oTextJump){
+    // 我方操作：手型区高亮，手型区绑定解锁，选择手型，副文本区报手型
+    controller.updateText("我方选择手型");
+    oTextJump.classList.add("高亮显示");
+    enableLiHover();
+    isBtnDisabled = false;
+    // 人类的操作空间
+    const clickedElement = await waitForPlayerClick("跳转单元格");
+    return clickedElement.value;
+  }
+  async function stepThreeMonster(controller, oTextJump){
+    // 对方操作：手型区锁定，随机选择手型，副文本区报手型
+    isBtnDisabled = true;
+    controller.updateText("对方选择手型");
+    oTextJump.classList.remove("高亮显示");
+    await sleep(3000);
+
+    const monsterShape = randomChooseOne(["剪刀", "石头", "布"]);
+    loadSubText(['handShape', monsterShape]);
+    return monsterShape;
+  }
   /*setTimeout(async ()=>{
     console.log("3s过去了", controller);
     await controller.finish();
     console.log("提示已完全消失");
   }, 3000);*/
 }
+
+async function stepPlayer(specific, controller, oTextJump){
+  await waitForCondition(() => isPlayerLeading);
+  console.log("我方开始操作");
+  // 我方具体操作
+  const result = await specific(controller, oTextJump);
+  // 善后
+  isBtnDisabled = true;
+  oTextJump.classList.remove("高亮显示");
+  disabledLiHover();
+  isPlayerLeading = false;
+  console.log("我方结束操作");
+  return result;
+}
+
+async function stepMonster(specific, controller, oTextJump){
+  await waitForCondition(() => !isPlayerLeading);
+  console.log("对方开始操作");
+  // 对方具体操作
+  const result = await specific(controller, oTextJump);
+  isPlayerLeading = true;
+  console.log("对方结束操作");
+  return result;
+}
+
+async function waitForCondition(condition){
+  while(!condition()){
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+}
+
+async function waitForPlayerClick(findClass){
+  return new Promise((resolve) => {
+    document.addEventListener("click", function onClickHandler(event){
+      const target = event.target;
+      console.log("我点击了");
+      if (target.classList.contains(findClass)){
+        document.removeEventListener('click', onClickHandler);
+        resolve(target);
+      }
+    });
+  });
+}
+
+
 
 // 回合指示器类
 class RoundTip{
@@ -158,7 +240,7 @@ class RoundTip{
             resolve();
           }, 1000);
         },
-        updateText: () => {
+        updateText: (newText) => {
           this.tip.innerText = newText;
         }
       };
@@ -168,6 +250,24 @@ class RoundTip{
   }
 }
 
-function randomChooseOne(element_one, element_two){
-  return Math.random() < 0.5 ? element_one : element_two;
+function randomChooseOne(element_array){
+  const randomIndex = Math.floor(Math.random() * element_array.length);
+  return element_array[randomIndex];
+}
+
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, 3000));
+}
+
+function disabledLiHover(){
+  const allLis = document.querySelectorAll(".跳转单元格");
+  allLis.forEach(li => {
+    li.classList.remove("可选按钮");
+  })
+}
+function enableLiHover(){
+  const allLis = document.querySelectorAll(".跳转单元格");
+  allLis.forEach(li => {
+    li.classList.add("可选按钮");
+  })
 }
