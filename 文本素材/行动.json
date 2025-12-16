@@ -1,5 +1,6 @@
 {
   "scene": ["你来到了"],
   "combat": ["你攻击了"],
-  "handShape": ["你选择的手型是："]
+  "handShape": ["你选择的手型是："],
+  "heartCard": ["你选择的心牌是："]
 }

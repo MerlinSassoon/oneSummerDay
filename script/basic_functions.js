@@ -117,18 +117,16 @@ function loadRoadButton(oFather, arr_roads){ // 在road[0]的位置放入路径�
 }
 
 // 加载场景
-// 1.点击场景按钮切换场景p,m,s
-// 2.点击主文本唤醒战斗p,m,s
-// 3.点击手型按钮实现选择s
+// 1.点击场景按钮切换场景p,m,s你来到了场景，场景压栈
+// 2.点击主文本唤醒战斗p,m,s你攻击了魔兽，战斗压栈【调用回退函数回退并清理栈顶】
+// 3.点击手型按钮实现选择s--这个功能整合去其他函数
 async function loadScene(target_value, buttonActive, combat_target=null){
-  if(buttonActive != "handShape"){
-    // 场景道路压栈
-    await pushRoadStack(target_value);
-    // 加载主文本
-    await loadMainText(target_value);
-    // 加载副文本
-  }
+  // 场景道路压栈
+  await pushRoadStack(target_value);
+  // 加载主文本
+  await loadMainText(target_value);
 
+  // 加载副文本
   if(!combat_target){
     await loadSubText([buttonActive, target_value]);
   }else{

@@ -15,5 +15,9 @@
   "handShape": {
     "file": "行动.json",
     "key": "handShape"
+  },
+  "heartCard": {
+    "file": "行动.json",
+    "key": "heartCard"
   }
 }

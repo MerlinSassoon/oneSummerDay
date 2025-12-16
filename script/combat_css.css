@@ -118,7 +118,7 @@
   align-self: flex-start;
   flex: none;
 }
-.手牌 {
+.心牌 {
   /* 自身样式 */
   width: 60px;
   height: 100px;
@@ -132,6 +132,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.可选心牌:hover{
+  width: 62px;
+  height: 102px;
 }
 
 #玩家场地 {

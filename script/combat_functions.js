@@ -59,11 +59,11 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
   for(var i=0; i<5; i++){
     const oPCard = document.createElement('div');
     oPCard.innerText = Cards[i];
-    oPCard.className = "手牌";
+    oPCard.className = "心牌";
     oPlayerCards.appendChild(oPCard);
 
     const oMCard = document.createElement('div');
-    oMCard.className = "手牌";
+    oMCard.className = "心牌";
     oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
   }
   // 规则展示区展示战斗规则和流程
@@ -107,18 +107,17 @@ async function stepsThree(roundTip, oRuleThree, oTextJump){
     const [roundTip, oTextJump] = parameters;
     const controller = await roundTip.controllerShow("我方选择手型");
     oTextJump.classList.add("高亮显示");
-    enableLiHover();
-    isBtnDisabled = false;
+    enableLiHover(); // 启用按钮，但是全局监听
     // 人类的操作空间
-    const clickedElement = await waitForPlayerClick("跳转单元格");
+    const clickedElement = await waitForPlayerClick(["handShape", "跳转单元格"]);
     oTextJump.classList.remove("高亮显示");
+    disabledLiHover(); // 禁用按钮
     controller.finish();
     return clickedElement.value;
   }
   async function stepThreeMonster(parameters){
     // 对方操作：手型区锁定，随机选择手型，副文本区报手型
     const [roundTip, oTextJump] = parameters;
-    isBtnDisabled = true;
     const controller = await roundTip.controllerShow("对方选择手型");
     oTextJump.classList.remove("高亮显示");
     await sleep(3000);
@@ -136,8 +135,6 @@ async function stepPlayer(specific, parameters){
   // 我方具体操作
   const result = await specific(parameters);
   // 善后
-  isBtnDisabled = true;
-  disabledLiHover();
   isPlayerLeading = false;
   console.log("我方结束操作");
   return result;
@@ -159,12 +156,14 @@ async function waitForCondition(condition){
   }
 }
 
-async function waitForPlayerClick(findClass){
+async function waitForPlayerClick(parameters){
+  const [mode, findClass] = parameters
   return new Promise((resolve) => {
     document.addEventListener("click", function onClickHandler(event){
       const target = event.target;
       if (target.classList.contains(findClass)){
         document.removeEventListener('click', onClickHandler);
+        loadSubText([mode, target.getAttribute("value")]); // 副文本区的内容加载应该不用异步吧；
         resolve(target);
       }
     });
@@ -175,10 +174,35 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
   // 规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮
   oRuleFour.classList.add("高亮显示");
 
-  function stepFourPlayer(parameters){
-    //我方操作：牌区高亮，选牌，副文本区公式
-    const [oPlayerCards] = parameters;
+  async function stepFourPlayer(parameters){
+    //我方操作：牌区高亮，牌可点击，有hover效果，点击完成去掉hover效果；
+    const [roundTip, oPlayerCards] = parameters;
+    const controller = await roundTip.controllerShow("我方选择心牌");
     oPlayerCards.classList.add("高亮显示");
+    const oCards = oPlayerCards.children;
+    for(var i=0; i<oCards.length; i++){
+      oCards.classList.add("可选心牌");
+    }
+    // 人类操作
+    const playerCard = await waitForPlayerClick(["heartCard","可选心牌"]);
+    // 收尾
+    controller.finish();
+    for(var i=0; i<oCards.length; i++){
+      oCards.classList.remove("可选心牌");
+    }
+    oPlayerCards.classList.remove("高亮显示");
+    return playerCard;
+  }
+
+  async function stepFourMonster(parameters){
+    //对方操作：牌区高亮，等待2s，选牌，副文本区公示
+    const [roundTip, oMonsterCards] = parameters;
+    const controller = await roundTip.controllerShow("对方选择心牌");
+    oMonsterCards.classList.add("高亮显示");
+    await sleep(2000);
+    const oCards = oMonsterCards.children;
+    const monsterCard = randomChooseOne(oCards);
+    await loadSubText(["heartCard", monsterCard.value]);
   }
 }
 
