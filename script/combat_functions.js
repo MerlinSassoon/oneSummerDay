@@ -47,8 +47,9 @@ async function combatRound(target){
   const leadingPlayer = await stepsTwo(oRuleTwo);
   await roundTip.threeSecondsShow("随机先手为：" + leadingPlayer);
 
-  await stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump);
+  await stepsThree(roundTip, oRuleThree, oTextJump);
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
+  //await stepsFour(roundTips, oRuleFour, oMonsterCards, oPlayerCards);
 }
 
 // 创建牌桌和手牌
@@ -69,12 +70,9 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
   await loadSubText(["rule", null]);
 }
 
-async function roundTips(roundTip, round){
-  //回合指示区显示”回合开始“->回合开始消失->规则2高亮，随机函数选择战斗一方->规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
-  //->规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮->规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
-  //回合结算，按照三局两胜的规则重新开局
-
-}
+//回合指示区显示”回合开始“->回合开始消失->规则2高亮，随机函数选择战斗一方->规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
+//->规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮->规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
+//回合结算，按照三局两胜的规则重新开局
 
 async function stepsTwo(oRuleTwo){
   // 规则2高亮，随机函数选择战斗一方
@@ -91,32 +89,35 @@ async function stepsTwo(oRuleTwo){
   }
 }
 
-async function stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump){
+async function stepsThree(roundTip, oRuleThree, oTextJump){
   // 规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
   oRuleThree.classList.add("高亮显示");
   console.log("isPlayerLeading:", isPlayerLeading);
 
-  const pHandShapeOne = stepPlayer(stepThreePlayer, oTextJump);
-  const mHandShapeOne = stepMonster(stepThreeMonster, oTextJump);
+  const pHandShapeOne = stepPlayer(stepThreePlayer, [roundTip, oTextJump]);
+  const mHandShapeOne = stepMonster(stepThreeMonster, [roundTip, oTextJump]);
 
   await Promise.all([pHandShapeOne, mHandShapeOne]);
 
   oRuleThree.classList.remove("高亮显示");
   console.log("提示已完全消失");
 
-  async function stepThreePlayer(oTextJump){
+  async function stepThreePlayer(parameters){
     // 我方操作：手型区高亮，手型区绑定解锁，选择手型，副文本区报手型
+    const [roundTip, oTextJump] = parameters;
     const controller = await roundTip.controllerShow("我方选择手型");
     oTextJump.classList.add("高亮显示");
     enableLiHover();
     isBtnDisabled = false;
     // 人类的操作空间
     const clickedElement = await waitForPlayerClick("跳转单元格");
+    oTextJump.classList.remove("高亮显示");
     controller.finish();
     return clickedElement.value;
   }
-  async function stepThreeMonster(oTextJump){
+  async function stepThreeMonster(parameters){
     // 对方操作：手型区锁定，随机选择手型，副文本区报手型
+    const [roundTip, oTextJump] = parameters;
     isBtnDisabled = true;
     const controller = await roundTip.controllerShow("对方选择手型");
     oTextJump.classList.remove("高亮显示");
@@ -127,32 +128,26 @@ async function stepsThree(leadingPlayer, roundTip, oRuleThree, oTextJump){
     await controller.finish();
     return monsterShape;
   }
-  /*setTimeout(async ()=>{
-    console.log("3s过去了", controller);
-    await controller.finish();
-    console.log("提示已完全消失");
-  }, 3000);*/
 }
 
-async function stepPlayer(specific, oTextJump){
+async function stepPlayer(specific, parameters){
   await waitForCondition(() => isPlayerLeading);
   console.log("我方开始操作");
   // 我方具体操作
-  const result = await specific(oTextJump);
+  const result = await specific(parameters);
   // 善后
   isBtnDisabled = true;
-  oTextJump.classList.remove("高亮显示");
   disabledLiHover();
   isPlayerLeading = false;
   console.log("我方结束操作");
   return result;
 }
 
-async function stepMonster(specific, oTextJump){
+async function stepMonster(specific, parameters){
   await waitForCondition(() => !isPlayerLeading);
   console.log("对方开始操作");
   // 对方具体操作
-  const result = await specific(oTextJump);
+  const result = await specific(parameters);
   isPlayerLeading = true;
   console.log("对方结束操作");
   return result;
@@ -174,6 +169,17 @@ async function waitForPlayerClick(findClass){
       }
     });
   });
+}
+
+async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
+  // 规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮
+  oRuleFour.classList.add("高亮显示");
+
+  function stepFourPlayer(parameters){
+    //我方操作：牌区高亮，选牌，副文本区公式
+    const [oPlayerCards] = parameters;
+    oPlayerCards.classList.add("高亮显示");
+  }
 }
 
 
