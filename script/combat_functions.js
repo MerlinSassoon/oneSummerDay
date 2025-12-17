@@ -51,6 +51,8 @@ async function combatRound(target){
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
   const [pHeartCard, mHeartCard] = await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster);
   const [pHandShapeTwo, mHandShapeTwo] = await stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne, pHeartCard, mHandShapeOne, mHeartCard);
+  await roundSettlement(roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer);
+
 }
 
 // 创建牌桌和手牌
@@ -228,7 +230,6 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
     return monsterCard.getAttribute("bool") === "true";
   }
 }
-
 async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne, pHeartCard, mHandShapeOne, mHeartCard){
   //规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
   oRuleFive.classList.add("高亮显示");
@@ -270,6 +271,21 @@ async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne
     loadSubText("handShape", "暂时保密", oMonster.outerHTML);
     return monsterShape;
   }
+}
+
+async function roundSettlement(roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer){
+  const controller = await roundTip.controllerShow("");
+  loadSubText("compare", oMonster.outerHTML+"："+mHandShapeTwo, "你："+pHandShapeTwo);
+  const isPlayerWined = getIsPlayerWined(pHandShapeTwo, mHandShapeTwo);
+  if(isPlayerWined === true){
+    controller.updateText("我方胜出");
+  }else if(isPlayerWined === null){
+    controller.updateText("平局");
+  }else{
+    controller.updateText("对方胜出");
+  }
+  sleep(3000); // 对这种睡眠方式感到不安和困惑
+  await controller.finish();
 }
 
 // 回合指示器类
@@ -377,4 +393,13 @@ function getHandShapeObject(handShape, shapeBool){
   };
   handShapeObject[handShape] = shapeBool;
   return handShapeObject;
+}
+function getIsPlayerWined(handShapeOne, handShapeTwo){
+  const RPS = {
+    "剪刀": 0,
+    "石头": 1,
+    "布": 2
+  }
+  const diff = (RPS[handShapeOne] - RPS[handShapeTwo] + 3) % 3;
+  return diff === 0 ? null : diff === 1 ? true : false;
 }

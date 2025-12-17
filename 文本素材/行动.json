@@ -2,5 +2,6 @@
   "scene": ["来到了"],
   "combat": ["攻击了"],
   "handShape": ["选择的手型是："],
-  "heartCard": ["选择的心牌是："]
+  "heartCard": ["选择的心牌是："],
+  "compare": [" VS "]
 }

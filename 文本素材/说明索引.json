@@ -19,5 +19,9 @@
   "heartCard": {
     "file": "行动.json",
     "key": "heartCard"
+  },
+  "compare": {
+    "file": "行动.json",
+    "key": "compare"
   }
 }
