@@ -21,21 +21,35 @@ async function bigWorldInteraction(event){
     // 战斗预备，双方信息收集
     const parameters = await createArea(target);
     // 进行战斗回合
-    const rounds = 5;
-    for(let round=1; round<rounds+1; round++){
-      await combatRound(round, parameters);
+    let round = 1;
+    while(true){
+      console.log("hear");
+      const isPlayerRoundWined = await combatRound(round, parameters);
       let monsterScore = oMonster.getAttribute("score");
       let playerScore = oPlayer.getAttribute("score");
-      if(parseInt(monsterScore) >= 3){
+      if(parseInt(monsterScore) >= 2){
+        var winner = parameters[0].outerHTML;
+        var loser = parameters[1].getAttribute("nickName");
         console.log("魔物获胜");
         break;
-      }else if(parseInt(playerScore) >= 3){
+      }else if(parseInt(playerScore) >= 2){
+        var winner = parameters[1].getAttribute("nickName");
+        var loser = parameters[0].outerHTML;
         console.log("玩家获胜");
         break;
       }else{
+        round ++;
         console.log("继续下一回合");
       }
     }
+    // 战斗切换；
+    parameters[2].classList.remove("战斗场景");
+    parameters[3].classList.remove("战斗选择", "高亮缓动");
+    isBFDisabled = false;
+    isBtnDisabled = false;
+    enableLiHover();
+
+    rollBackFromCombat(winner, loser);
   }else if(target.classList.contains("花卉")){
     active = "采摘";
     console.log("采摘了",target.innerText);
@@ -43,7 +57,7 @@ async function bigWorldInteraction(event){
 }
 
 async function combatRound(round, parameters){
-  const [oMonster, oPlayer, oTextJump, oMonsterArea, oMahjongTable, oPlayerArea, oMonsterCards, oRoundInstructions, oPlayerCards] = parameters;
+  const [oMonster, oPlayer, oContent, oTextJump, oMonsterArea, oMahjongTable, oPlayerArea, oMonsterCards, oRoundInstructions, oPlayerCards] = parameters;
   // 开始战斗回合
   const roundTip = new RoundTip(oRoundInstructions);
   // 回合一 ;回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
@@ -63,7 +77,8 @@ async function combatRound(round, parameters){
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
   const [pHeartCard, mHeartCard] = await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster);
   const [pHandShapeTwo, mHandShapeTwo] = await stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne, pHeartCard, mHandShapeOne, mHeartCard);
-  await roundSettlement(round, roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer);
+  const isPlayerRoundWined = await roundSettlement(round, roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer);
+  return isPlayerRoundWined;
 }
 
 async function createArea(target){
@@ -80,10 +95,11 @@ async function createArea(target){
   oPlayerArea.innerHTML = "<span id='玩家'>代号：玩家的名字<span>";
   oPlayer = oPlayerArea.children[0];
   oPlayer.setAttribute("score", 0);
+  oPlayer.setAttribute("nickName", "你");
   // 创建牌桌
   const [oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
   await createMahjongTable(oMonsterCards, oPlayerCards);
-  return [oMonster, oPlayer, oTextJump, oMonsterArea, oMahjongTable, oPlayerArea, oMonsterCards, oRoundInstructions, oPlayerCards];
+  return [oMonster, oPlayer, oContent, oTextJump, oMonsterArea, oMahjongTable, oPlayerArea, oMonsterCards, oRoundInstructions, oPlayerCards];
 }
 
 // 创建牌桌和手牌
@@ -154,9 +170,9 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     // 人类的操作空间
     const playerShape = await waitForPlayerClick(["handShape", "可选按钮"]);
     // 收尾
-    await controller.finish();
     oTextJump.classList.remove("高亮显示");
     disabledLiHover(); // 禁用按钮
+    await controller.finish();
     return playerShape.getAttribute("value");
   }
   async function stepThreeMonster(parameters){
@@ -164,11 +180,11 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     const [oMonster, roundTip, oTextJump] = parameters;
     const controller = await roundTip.controllerShow("对方选择手型");
     // 等待
-    await sleep(1000);
+    await sleep(1200);
     const monsterShape = randomChooseOne(["剪刀", "石头", "布"]);
     // 收尾
-    await controller.finish();
     loadSubText('handShape', monsterShape, oMonster.outerHTML);
+    await controller.finish();
     return monsterShape;
   }
 }
@@ -238,12 +254,12 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
     // 人类操作
     const playerCard = await waitForPlayerClick(["heartCard","可选心牌"]);
     // 收尾
-    playerCard.style.visibility = "hidden"; // hidden 还是 remove ,it's a problem;
-    await controller.finish();
+    playerCard.style.visibility = "hidden"; // hidden 还是 remove ,it's a problem;hidden不可交互
     for(var i=0; i<oCards.length; i++){
       oCards[i].classList.remove("可选心牌");
     }
     oPlayerCards.classList.remove("高亮显示");
+    await controller.finish();
     return playerCard.getAttribute("bool") === "true";
   }
   async function stepFourMonster(parameters){
@@ -251,13 +267,13 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
     const [oMonster, roundTip, oMonsterCards] = parameters;
     const controller = await roundTip.controllerShow("对方选择心牌");
     // 等待
-    await sleep(1000);
+    await sleep(1200);
     const oCards = oMonsterCards.children;
     const monsterCard = randomChooseOne(oCards);
     // 收尾
     monsterCard.remove();
-    await controller.finish();
     loadSubText("heartCard", "暂时保密", oMonster.outerHTML);// 双方心牌保密
+    await controller.finish();
     return monsterCard.getAttribute("bool") === "true";
   }
 }
@@ -283,9 +299,9 @@ async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne
     // 人类操作：
     const playerShape = await waitForPlayerClick(["handShape", "可选按钮"]);
     // 收尾
-    await controller.finish();
     oTextJump.classList.remove("高亮显示");
     disabledLiHover();
+    await controller.finish();
     return playerShape.getAttribute("value");
   }
   async function stepFiveMonster(parameters){
@@ -293,13 +309,13 @@ async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne
     // 对方操作：展示“对方打出手型”，sleep(2000)，选择手型，副文本区公示
     const controller = await roundTip.controllerShow("对方打出手型");
     // 等待
-    await sleep(1000);
+    await sleep(1200);
     const handShapeObject = getHandShapeObject(mHandShapeOne, mHeartCard);
     const handShapeArray = Object.keys(handShapeObject).filter(key => handShapeObject[key]);
     const monsterShape = randomChooseOne(handShapeArray);
     // 收尾
-    await controller.finish();
     loadSubText("handShape", "暂时保密", oMonster.outerHTML);
+    await controller.finish();
     return monsterShape;
   }
 }
@@ -320,10 +336,11 @@ async function roundSettlement(round, roundTip, pHandShapeTwo, mHandShapeTwo, oM
     isPlayerLeading = true;
   }
   loadSubText("frameRoundEnd", "", `================ 回合 ${round} 结束 `);
-  loadSubText("showScore", oPlayer.getAttribute("score"), oPlayer.outerHTML);
+  loadSubText("showScore", oPlayer.getAttribute("score"), oPlayer.getAttribute("nickName"));
   loadSubText("showScore", oMonster.getAttribute("score"), oMonster.outerHTML);
   await roundTip.threeSecondsShow(roundText);
   roundTip.destroy();
+  return isPlayerRoundWined;
 }
 
 // 回合指示器类
@@ -406,7 +423,7 @@ function randomChooseOne(element_array){
 }
 
 function sleep(ms){
-  return new Promise(resolve => setTimeout(resolve, 3000));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function disabledLiHover(){

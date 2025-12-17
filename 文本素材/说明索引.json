@@ -35,5 +35,9 @@
   "showScore": {
     "file": "行动.json",
     "key": "showScore"
+  },
+  "afterCombat": {
+    "file": "行动.json",
+    "key": "afterCombat"
   }
 }

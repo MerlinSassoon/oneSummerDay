@@ -1,7 +1,8 @@
 const START_SCENE = "蒙德城";      // 初始场景
 let sceneRoad = [START_SCENE, ];  // 路径栈
 let currentPointer = 0;           // 起始指针
-let fileCache = {};               // 场景缓存
+let fileCache = {};               // 场景json缓存
+let subTextCache = null;          //副文本缓存
 let sceneIndex = null;            // 场景索引预载
 let textIndex = null;             // 说明索引预载
 let isBFDisabled = false;         // 前进后退是否不可用
@@ -66,7 +67,7 @@ async function loadMainText(sceneName, ){
     const sceneData = mytext[sceneInfo.key];
 
     if(sceneInfo.key == "战斗"){
-      oMainTextContent.innerHTML = sceneData.descript; // 手动创建战斗场景和牌桌，json存储的信息作为”统一、样板“存在
+      oMainTextContent.innerHTML = sceneData.descript; // 自动创建战斗场景和牌桌，使用json存储的信息
     }else{
       // 主文本内容区，分段落加载主文本内容
       if(sceneData.descript){
@@ -192,6 +193,13 @@ function loadForward(){
   }
 }
 
+function rollBackFromCombat(winner, loser){
+  currentPointer--;
+  sceneRoad.pop();
+  loadMainText(sceneRoad[currentPointer]);
+  loadSubText("afterCombat", loser, winner);
+}
+
 // 加载副文本区
 async function loadSubText(textName, target, master="你"){
   // 通过场景索引和场景名得到场景路径，并捕获错误
@@ -205,8 +213,16 @@ async function loadSubText(textName, target, master="你"){
   // 选择副文本区
   const oSubTextArea = document.getElementById("副文本区");
   // 获得两个子块并清空其中的内容
-  const [oSubTextRule, oSubTextAction] = Array.from(oSubTextArea.children);
-  const [oActionHead, oActionContent] = Array.from(oSubTextAction.children);
+  let [oSubTextRule, oSubTextAction] = Array.from(oSubTextArea.children);
+  let [oActionHead, oActionContent] = Array.from(oSubTextAction.children);
+  if(textName == "combat"){
+    subTextCache = oActionContent.cloneNode(true);
+    oActionContent.replaceChildren();
+  }else if(textName == "afterCombat"){
+    oSubTextRule.replaceChildren();
+    oSubTextAction.replaceChild(subTextCache, oActionContent);
+    oActionContent = subTextCache;
+  }
   //[oMainTextHead, oMainTextContent, oMainTextJump].forEach(el => el.replaceChildren());
   // 规则区清空，行动区持续展示；特殊场景特殊显示
 

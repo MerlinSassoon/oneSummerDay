@@ -6,5 +6,6 @@
   "compare": [" VS "],
   "frameRoundStart": ["================"],
   "frameRoundEnd": ["================"],
-  "showScore": ["的得分是："]
+  "showScore": ["的得分是："],
+  "afterCombat": ["击败了"]
 }
