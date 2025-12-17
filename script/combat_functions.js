@@ -10,7 +10,7 @@ async function bigWorldInteraction(event){
   if(target.tagName != "SPAN" || isBFDisabled == true){return;}
   if(target.classList.contains("魔物")){
     // 异步加载战斗场景
-    await loadScene("战斗", "combat", target.innerText);// target_value, buttonActive, combat_target;
+    await loadScene("战斗", "combat", target.outerHTML);// target_value, buttonActive, combat_target;
     // 禁用回退和跳转单元格
     isBFDisabled = true;
     isBtnDisabled = true;
@@ -56,16 +56,20 @@ async function combatRound(target){
 async function createMahjongTable(oMonsterCards, oPlayerCards){
   // 牌桌上有双方各有5张牌；
   const Cards = ["真", "真", "真", "假", "假"];
+  const boolCards = [true, true, true, false, false];
   for(var i=0; i<5; i++){
     const oPCard = document.createElement('div');
     oPCard.innerText = Cards[i];
     oPCard.className = "心牌 高亮缓动";
+
     oPCard.setAttribute("value", Cards[i]);
+    oPCard.setAttribute("bool", boolCards[i]);
     oPlayerCards.appendChild(oPCard);
 
     const oMCard = document.createElement('div');
     oMCard.className = "心牌";
     oMCard.setAttribute("value", Cards[i]);
+    oMCard.setAttribute("bool", boolCards[i]);
     oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
   }
   // 规则展示区展示战斗规则和流程
@@ -117,7 +121,7 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     oTextJump.classList.remove("高亮显示");
     disabledLiHover(); // 禁用按钮
     await controller.finish();
-    return clickedElement;
+    return clickedElement.getAttribute("value");
   }
   async function stepThreeMonster(parameters){
     // 对方操作：手型区锁定，随机选择手型，副文本区报手型
@@ -126,10 +130,10 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     oTextJump.classList.remove("高亮显示");
     await sleep(3000);
 
-    const monsterShape = randomChooseOne(["剪刀", "石头", "布"]);
-    await loadSubText('handShape', monsterShape, oMonster.outerHTML);
+    const monsterShape = randomChooseOne(oTextJump.querySelectorAll(".跳转单元格"));
+    await loadSubText('handShape', monsterShape.getAttribute("value"), oMonster.outerHTML);
     await controller.finish();
-    return monsterShape;
+    return monsterShape.getAttribute("value");
   }
 }
 
@@ -204,7 +208,7 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
       oCards[i].classList.remove("可选心牌");
     }
     oPlayerCards.classList.remove("高亮显示");
-    return playerCard;
+    return playerCard.getAttribute("bool");
   }
   async function stepFourMonster(parameters){
     //对方操作：牌区高亮，等待2s，选牌，副文本区公示
@@ -217,11 +221,22 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
     monsterCard.remove();
     await controller.finish();
     await loadSubText("heartCard", "暂时保密", oMonster.outerHTML);// 双方心牌保密
-    return monsterCard;
+    return monsterCard.getAttribute("bool");
   }
 }
 
+async function stepsFive(roundTip, oRuleFive, pHandShapeOne, pHeartCard){
+  //规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
+  oRuleFive.classList.add("高亮显示");
 
+  // 我方操作：手型区高亮，跳转hover解锁，根据上两步的结果锁定跳转，点击手型
+  const controller = await roundTip.controllerShow("我方打出手型");
+  oTextJump.classList.add("高亮显示");
+  enableLiHover(getHandShapeObject[pHandShapeOne, pHeartCard]);
+  // 人类操作：
+
+
+}
 
 // 回合指示器类
 class RoundTip{
@@ -312,9 +327,20 @@ function disabledLiHover(){
     li.classList.remove("可选按钮");
   })
 }
-function enableLiHover(){
+function enableLiHover(handShapeObject = {"剪刀": true, "石头": true, "布": true}){
   const allLis = document.querySelectorAll(".跳转单元格");
   allLis.forEach(li => {
-    li.classList.add("可选按钮");
+    if(handShapeObject[li.getAttribute("value")]){
+      li.classList.add("可选按钮");
+    }
   })
+}
+function getHandShapeObject(handShape, shapeBool){
+  const handShapeObject = {
+    "剪刀": !shapeBool,
+    "石头": !shapeBool,
+    "布": !shapeBool
+  };
+  handShapeObject[handShape] = shapeBool;
+  return handShapeObject;
 }
