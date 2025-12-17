@@ -48,7 +48,6 @@ async function bigWorldInteraction(event){
     isBFDisabled = false;
     isBtnDisabled = false;
     enableLiHover();
-
     rollBackFromCombat(winner, loser);
   }else if(target.classList.contains("花卉")){
     active = "采摘";

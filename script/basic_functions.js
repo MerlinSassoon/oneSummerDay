@@ -221,7 +221,9 @@ async function loadSubText(textName, target, master="你"){
   }else if(textName == "afterCombat"){
     oSubTextRule.replaceChildren();
     oSubTextAction.replaceChild(subTextCache, oActionContent);
+    const oActionLog = oActionContent.children[0];
     oActionContent = subTextCache;
+    oActionContent.appendChild(oActionLog);
   }
   //[oMainTextHead, oMainTextContent, oMainTextJump].forEach(el => el.replaceChildren());
   // 规则区清空，行动区持续展示；特殊场景特殊显示

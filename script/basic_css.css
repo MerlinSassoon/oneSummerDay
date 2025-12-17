@@ -2,6 +2,7 @@ body{
   min-width: 960px;
   overflow-x: auto;
 }
+
 .状态条 {
   width: 40%;
   height: 20px;
