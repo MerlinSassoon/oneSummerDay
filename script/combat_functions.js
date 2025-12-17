@@ -47,9 +47,10 @@ async function combatRound(target){
   const leadingPlayer = await stepsTwo(oRuleTwo);
   await roundTip.threeSecondsShow("随机先手为：" + leadingPlayer);
 
-  await stepsThree(roundTip, oRuleThree, oTextJump, oMonster);
+  const [pHandShapeOne, mHandShapeOne] = await stepsThree(roundTip, oRuleThree, oTextJump, oMonster);
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
-  await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster);
+  const [pHeartCard, mHeartCard] = await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster);
+  const [pHandShapeTwo, mHandShapeTwo] = await stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne, pHeartCard, mHandShapeOne, mHeartCard);
 }
 
 // 创建牌桌和手牌
@@ -110,6 +111,7 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
   oRuleThree.classList.remove("高亮显示");
   console.log("提示已完全消失");
 
+  return [pHandShapeOne, mHandShapeOne];
   async function stepThreePlayer(parameters){
     // 我方操作：手型区高亮，手型区绑定解锁，选择手型，副文本区报手型
     const [roundTip, oTextJump] = parameters;
@@ -117,23 +119,24 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     oTextJump.classList.add("高亮显示");
     enableLiHover(); // 启用按钮，但是全局监听
     // 人类的操作空间
-    const clickedElement = await waitForPlayerClick(["handShape", "跳转单元格"]);
+    const playerShape = await waitForPlayerClick(["handShape", "跳转单元格"]);
+    // 收尾
+    await controller.finish();
     oTextJump.classList.remove("高亮显示");
     disabledLiHover(); // 禁用按钮
-    await controller.finish();
-    return clickedElement.getAttribute("value");
+    return playerShape.getAttribute("value");
   }
   async function stepThreeMonster(parameters){
     // 对方操作：手型区锁定，随机选择手型，副文本区报手型
     const [oMonster, roundTip, oTextJump] = parameters;
     const controller = await roundTip.controllerShow("对方选择手型");
-    oTextJump.classList.remove("高亮显示");
+    // 等待
     await sleep(3000);
-
-    const monsterShape = randomChooseOne(oTextJump.querySelectorAll(".跳转单元格"));
-    await loadSubText('handShape', monsterShape.getAttribute("value"), oMonster.outerHTML);
+    const monsterShape = randomChooseOne(["剪刀", "石头", "布"]);
+    // 收尾
     await controller.finish();
-    return monsterShape.getAttribute("value");
+    loadSubText('handShape', monsterShape, oMonster.outerHTML);
+    return monsterShape;
   }
 }
 
@@ -189,7 +192,7 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
 
   oRuleFour.classList.remove("高亮显示");
   console.log("提示已完全消失");
-
+  return [pHeartCard, mHeartCard];
   async function stepFourPlayer(parameters){
     //我方操作：牌区高亮，牌可点击，有hover效果，点击完成去掉hover效果；
     const [roundTip, oPlayerCards] = parameters;
@@ -202,40 +205,71 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
     // 人类操作
     const playerCard = await waitForPlayerClick(["heartCard","可选心牌"]);
     // 收尾
-    playerCard.style.visibility = "hidden";
+    playerCard.style.visibility = "hidden"; // hidden 还是 remove ,it's a problem;
     await controller.finish();
     for(var i=0; i<oCards.length; i++){
       oCards[i].classList.remove("可选心牌");
     }
     oPlayerCards.classList.remove("高亮显示");
-    return playerCard.getAttribute("bool");
+    return playerCard.getAttribute("bool") === "true";
   }
   async function stepFourMonster(parameters){
     //对方操作：牌区高亮，等待2s，选牌，副文本区公示
     const [oMonster, roundTip, oMonsterCards] = parameters;
     const controller = await roundTip.controllerShow("对方选择心牌");
-
+    // 等待
     await sleep(3000);
     const oCards = oMonsterCards.children;
     const monsterCard = randomChooseOne(oCards);
+    // 收尾
     monsterCard.remove();
     await controller.finish();
-    await loadSubText("heartCard", "暂时保密", oMonster.outerHTML);// 双方心牌保密
-    return monsterCard.getAttribute("bool");
+    loadSubText("heartCard", "暂时保密", oMonster.outerHTML);// 双方心牌保密
+    return monsterCard.getAttribute("bool") === "true";
   }
 }
 
-async function stepsFive(roundTip, oRuleFive, pHandShapeOne, pHeartCard){
+async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne, pHeartCard, mHandShapeOne, mHeartCard){
   //规则5高亮，锁定手型灰色显示，回合指示区展示“我方出手”或“对方出手"
   oRuleFive.classList.add("高亮显示");
 
-  // 我方操作：手型区高亮，跳转hover解锁，根据上两步的结果锁定跳转，点击手型
-  const controller = await roundTip.controllerShow("我方打出手型");
-  oTextJump.classList.add("高亮显示");
-  enableLiHover(getHandShapeObject[pHandShapeOne, pHeartCard]);
-  // 人类操作：
+  const [pHandShapeTwo, mHandShapeTwo] = await Promise.all([
+    stepPlayer(stepFivePlayer, [roundTip, oTextJump, pHandShapeOne, pHeartCard]),
+    stepMonster(stepFiveMonster, [oMonster, roundTip, mHandShapeOne, mHeartCard])
+  ]);
+  console.log("pHandShapeTwo", pHandShapeTwo);
+  console.log("mHandShapeTwo", mHandShapeTwo);
 
-
+  oRuleFive.classList.remove("高亮显示");
+  return [pHandShapeTwo, mHandShapeTwo];
+  async function stepFivePlayer(parameters){
+    const [roundTip, oTextJump, pHandShapeOne, pHeartCard] = parameters;
+    // 我方操作：手型区高亮，跳转hover解锁，根据上两步的结果锁定跳转，点击手型
+    const controller = await roundTip.controllerShow("我方打出手型");
+    oTextJump.classList.add("高亮显示");
+    enableLiHover(getHandShapeObject(pHandShapeOne, pHeartCard));
+    // 人类操作：
+    const playerShape = await waitForPlayerClick(["handShape", "跳转单元格"]);
+    // 收尾
+    await controller.finish();
+    oTextJump.classList.remove("高亮显示");
+    disabledLiHover();
+    return playerShape.getAttribute("value");
+  }
+  async function stepFiveMonster(parameters){
+    const [oMonster, roundTip, mHandShapeOne, mHeartCard] = parameters;
+    // 对方操作：展示“对方打出手型”，sleep(2000)，选择手型，副文本区公示
+    const controller = await roundTip.controllerShow("对方打出手型");
+    // 等待
+    await sleep(2000);
+    const handShapeObject = getHandShapeObject(mHandShapeOne, mHeartCard);
+    const handShapeArray = Object.keys(handShapeObject).filter(key => handShapeObject[key]);
+    const monsterShape = randomChooseOne(handShapeArray);
+    // 收尾
+    await controller.finish();
+    loadSubText("handShape", "暂时保密", oMonster.outerHTML);
+    return monsterShape;
+  }
 }
 
 // 回合指示器类
