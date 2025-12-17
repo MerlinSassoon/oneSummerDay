@@ -7,10 +7,10 @@ let isPlayerLeading = null; // 玩家先手吗
 async function bigWorldInteraction(event){
   const target = event.target;
 
-  if(target.tagName != "SPAN"){return;}
+  if(target.tagName != "SPAN" || isBFDisabled == true){return;}
   if(target.classList.contains("魔物")){
     // 异步加载战斗场景
-    await loadScene("战斗", "combat", target.innerText);
+    await loadScene("战斗", "combat", target.innerText);// target_value, buttonActive, combat_target;
     // 禁用回退和跳转单元格
     isBFDisabled = true;
     isBtnDisabled = true;
@@ -47,9 +47,9 @@ async function combatRound(target){
   const leadingPlayer = await stepsTwo(oRuleTwo);
   await roundTip.threeSecondsShow("随机先手为：" + leadingPlayer);
 
-  await stepsThree(roundTip, oRuleThree, oTextJump);
+  await stepsThree(roundTip, oRuleThree, oTextJump, oMonster);
   // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
-  await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards);
+  await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster);
 }
 
 // 创建牌桌和手牌
@@ -69,7 +69,7 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
     oMonsterCards.appendChild(oMCard); // 对手的手牌不需要显示文字；
   }
   // 规则展示区展示战斗规则和流程
-  await loadSubText(["rule", null]);
+  await loadSubText("rule", null);
 }
 
 //回合指示区显示”回合开始“->回合开始消失->规则2高亮，随机函数选择战斗一方->规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
@@ -91,13 +91,13 @@ async function stepsTwo(oRuleTwo){
   }
 }
 
-async function stepsThree(roundTip, oRuleThree, oTextJump){
+async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
   // 规则3高亮，先行一方选择手型，回合指示区展示“我方选择手型”或“对方选择手型”，手型区高亮
   oRuleThree.classList.add("高亮显示");
   console.log("isPlayerLeading:", isPlayerLeading);
 
   const pHandShapeOne = stepPlayer(stepThreePlayer, [roundTip, oTextJump]);
-  const mHandShapeOne = stepMonster(stepThreeMonster, [roundTip, oTextJump]);
+  const mHandShapeOne = stepMonster(stepThreeMonster, [oMonster, roundTip, oTextJump]);
 
   await Promise.all([pHandShapeOne, mHandShapeOne]);
 
@@ -119,13 +119,13 @@ async function stepsThree(roundTip, oRuleThree, oTextJump){
   }
   async function stepThreeMonster(parameters){
     // 对方操作：手型区锁定，随机选择手型，副文本区报手型
-    const [roundTip, oTextJump] = parameters;
+    const [oMonster, roundTip, oTextJump] = parameters;
     const controller = await roundTip.controllerShow("对方选择手型");
     oTextJump.classList.remove("高亮显示");
     await sleep(3000);
 
     const monsterShape = randomChooseOne(["剪刀", "石头", "布"]);
-    await loadSubText(['handShape', monsterShape]);
+    await loadSubText('handShape', monsterShape, oMonster.outerHTML);
     await controller.finish();
     return monsterShape;
   }
@@ -163,19 +163,19 @@ async function waitForPlayerClick(parameters){
       const target = event.target;
       if (target.classList.contains(findClass)){
         document.removeEventListener('click', onClickHandler);
-        loadSubText([mode, target.getAttribute("value")]); // 副文本区的内容加载应该不用异步吧；
+        loadSubText(mode, target.getAttribute("value")); // 副文本区的内容加载应该不用异步吧；
         resolve(target);
       }
     });
   });
 }
 
-async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
+async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster){
   // 规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮
   oRuleFour.classList.add("高亮显示");
 
   const pHeartCard = stepPlayer(stepFourPlayer, [roundTip, oPlayerCards]);
-  const mHeartCard = stepMonster(stepFourMonster, [roundTip, oMonsterCards]);
+  const mHeartCard = stepMonster(stepFourMonster, [oMonster, roundTip, oMonsterCards]);
 
   await Promise.all([pHeartCard, mHeartCard]);
 
@@ -205,7 +205,7 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
   }
   async function stepFourMonster(parameters){
     //对方操作：牌区高亮，等待2s，选牌，副文本区公示
-    const [roundTip, oMonsterCards] = parameters;
+    const [oMonster, roundTip, oMonsterCards] = parameters;
     const controller = await roundTip.controllerShow("对方选择心牌");
 
     await sleep(3000);
@@ -213,7 +213,7 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
     const monsterCard = randomChooseOne(oCards);
     monsterCard.remove();
     await controller.finish();
-    await loadSubText(["heartCard", "暂时保密"]);// 双方心牌保密
+    await loadSubText("heartCard", "暂时保密", oMonster.outerHTML);// 双方心牌保密
     return monsterCard;
   }
 }

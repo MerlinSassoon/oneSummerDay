@@ -1,6 +1,6 @@
 {
-  "scene": ["你来到了"],
-  "combat": ["你攻击了"],
-  "handShape": ["你选择的手型是："],
-  "heartCard": ["你选择的心牌是："]
+  "scene": ["来到了"],
+  "combat": ["攻击了"],
+  "handShape": ["选择的手型是："],
+  "heartCard": ["选择的心牌是："]
 }

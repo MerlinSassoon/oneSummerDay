@@ -128,9 +128,9 @@ async function loadScene(target_value, buttonActive, combat_target=null){
 
   // 加载副文本
   if(!combat_target){
-    await loadSubText([buttonActive, target_value]);
+    await loadSubText(buttonActive, target_value);
   }else{
-    await loadSubText([buttonActive, combat_target]);
+    await loadSubText(buttonActive, combat_target);
   }
 }
 
@@ -195,8 +195,7 @@ function loadForward(){
 }
 
 // 加载副文本区
-async function loadSubText(config){
-  const [textName, target] = config;
+async function loadSubText(textName, target, master="你"){
   // 通过场景索引和场景名得到场景路径，并捕获错误
   var textInfo = textIndex[textName]
   if (!textInfo) {
@@ -234,7 +233,7 @@ async function loadSubText(config){
           oSubTextRule.appendChild(oRules);
         }
       }else{
-        const oActions = createElementP(textData[0]+target, "副文本内容");
+        const oActions = createElementP(master+textData[0]+target, "副文本内容");
         oActionContent.appendChild(oActions);
       }
     }
