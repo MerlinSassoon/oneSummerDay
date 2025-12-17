@@ -233,7 +233,12 @@ async function loadSubText(textName, target, master="你"){
           oSubTextRule.appendChild(oRules);
         }
       }else{
-        const oActions = createElementP(master+textData[0]+target, "副文本内容");
+        if(textName.includes("frame")){
+          var textClass = "副文本内容 框架";
+        }else{
+          var textClass = "副文本内容";
+        }
+        const oActions = createElementP(master+textData[0]+target, textClass);
         oActionContent.appendChild(oActions);
       }
     }

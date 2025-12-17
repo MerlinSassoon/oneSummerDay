@@ -3,6 +3,7 @@
 // a：本次我出“布”；b：本次我出“剪刀”；
 // 战斗结束前禁用回退（  ）；结束战斗回合时需要去掉主文本内容区的”战斗场景“class
 let isPlayerLeading = null; // 玩家先手吗
+let isPlayerRoundWined = null; // 玩家本回合赢了吗
 
 async function bigWorldInteraction(event){
   const target = event.target;
@@ -15,44 +16,71 @@ async function bigWorldInteraction(event){
     isBFDisabled = true;
     isBtnDisabled = true;
     disabledLiHover();
-    // 进行战斗回合
-    combatRound(target);
     console.log("触发了战斗：", target.innerText);
+
+    // 战斗预备，双方信息收集
+    const parameters = await createArea(target);
+    // 进行战斗回合
+    const rounds = 5;
+    for(let round=1; round<rounds+1; round++){
+      await combatRound(round, parameters);
+      let monsterScore = oMonster.getAttribute("score");
+      let playerScore = oPlayer.getAttribute("score");
+      if(parseInt(monsterScore) >= 3){
+        console.log("魔物获胜");
+        break;
+      }else if(parseInt(playerScore) >= 3){
+        console.log("玩家获胜");
+        break;
+      }else{
+        console.log("继续下一回合");
+      }
+    }
   }else if(target.classList.contains("花卉")){
     active = "采摘";
     console.log("采摘了",target.innerText);
   }
 }
 
-async function combatRound(target){
+async function combatRound(round, parameters){
+  const [oMonster, oPlayer, oTextJump, oMonsterArea, oMahjongTable, oPlayerArea, oMonsterCards, oRoundInstructions, oPlayerCards] = parameters;
+  // 开始战斗回合
+  const roundTip = new RoundTip(oRoundInstructions);
+  // 回合一 ;回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
+  loadSubText("frameRoundStart", "", `=============== 回合 ${round} 开始 `);
+  await roundTip.threeSecondsShow(`第 ${round} 回合 开始！`); // 回合指示淡入淡出后销毁
+
+  const oRuleDisplay = document.getElementById("副文本规则区");
+  const [oRuleHead, oRuleOne, oRuleTwo, oRuleThree, oRuleFour, oRuleFive] = Array.from(oRuleDisplay.children);
+
+  if(round == 1){
+    var leadingPlayer = "随机先手为：" + await stepsTwo(oRuleTwo);
+  }else{
+    var leadingPlayer = "败者先手";
+  }
+  await roundTip.threeSecondsShow(leadingPlayer);
+  const [pHandShapeOne, mHandShapeOne] = await stepsThree(roundTip, oRuleThree, oTextJump, oMonster);
+  // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
+  const [pHeartCard, mHeartCard] = await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster);
+  const [pHandShapeTwo, mHandShapeTwo] = await stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne, pHeartCard, mHandShapeOne, mHeartCard);
+  await roundSettlement(round, roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer);
+}
+
+async function createArea(target){
   const oTextContent = document.getElementById("主文本内容区");
   const oTextJump = document.getElementById("主文本跳转区");
   const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oTextContent.children);
   // 战斗双方入场
   oMonsterArea.innerHTML = target.outerHTML; // 有隐患，注意安全问题，以及逐渐寻找更好的方案
   oMonster = oMonsterArea.children[0];
+  oMonster.setAttribute("score", 0);
   oPlayerArea.innerHTML = "<span id='玩家'>代号：玩家的名字<span>";
   oPlayer = oPlayerArea.children[0];
+  oPlayer.setAttribute("score", 0);
   // 创建牌桌
   const [oMonsterCards, oRoundInstructions, oPlayerCards] = Array.from(oMahjongTable.children);
   await createMahjongTable(oMonsterCards, oPlayerCards);
-  // 开始战斗回合
-  const roundTip = new RoundTip(oRoundInstructions);
-  // 回合一 ;回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
-  await roundTip.threeSecondsShow("第一回合 开始！"); // 回合指示淡入淡出后销毁
-
-  const oRuleDisplay = document.getElementById("副文本规则区");
-  const [oRuleHead, oRuleOne, oRuleTwo, oRuleThree, oRuleFour, oRuleFive] = Array.from(oRuleDisplay.children);
-
-  const leadingPlayer = await stepsTwo(oRuleTwo);
-  await roundTip.threeSecondsShow("随机先手为：" + leadingPlayer);
-
-  const [pHandShapeOne, mHandShapeOne] = await stepsThree(roundTip, oRuleThree, oTextJump, oMonster);
-  // console.log("随机先行牌手为：", oLeadingPlayer.innerText);
-  const [pHeartCard, mHeartCard] = await stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMonster);
-  const [pHandShapeTwo, mHandShapeTwo] = await stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne, pHeartCard, mHandShapeOne, mHeartCard);
-  await roundSettlement(roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer);
-
+  return [oMonster, oPlayer, oTextJump, oMonsterArea, oMahjongTable, oPlayerArea, oMonsterCards, oRoundInstructions, oPlayerCards];
 }
 
 // 创建牌桌和手牌
@@ -133,7 +161,7 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     const [oMonster, roundTip, oTextJump] = parameters;
     const controller = await roundTip.controllerShow("对方选择手型");
     // 等待
-    await sleep(3000);
+    await sleep(1000);
     const monsterShape = randomChooseOne(["剪刀", "石头", "布"]);
     // 收尾
     await controller.finish();
@@ -220,7 +248,7 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
     const [oMonster, roundTip, oMonsterCards] = parameters;
     const controller = await roundTip.controllerShow("对方选择心牌");
     // 等待
-    await sleep(3000);
+    await sleep(1000);
     const oCards = oMonsterCards.children;
     const monsterCard = randomChooseOne(oCards);
     // 收尾
@@ -262,7 +290,7 @@ async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne
     // 对方操作：展示“对方打出手型”，sleep(2000)，选择手型，副文本区公示
     const controller = await roundTip.controllerShow("对方打出手型");
     // 等待
-    await sleep(2000);
+    await sleep(1000);
     const handShapeObject = getHandShapeObject(mHandShapeOne, mHeartCard);
     const handShapeArray = Object.keys(handShapeObject).filter(key => handShapeObject[key]);
     const monsterShape = randomChooseOne(handShapeArray);
@@ -273,19 +301,26 @@ async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne
   }
 }
 
-async function roundSettlement(roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer){
-  const controller = await roundTip.controllerShow("");
-  loadSubText("compare", oMonster.outerHTML+"："+mHandShapeTwo, "你："+pHandShapeTwo);
-  const isPlayerWined = getIsPlayerWined(pHandShapeTwo, mHandShapeTwo);
-  if(isPlayerWined === true){
-    controller.updateText("我方胜出");
-  }else if(isPlayerWined === null){
-    controller.updateText("平局");
+async function roundSettlement(round, roundTip, pHandShapeTwo, mHandShapeTwo, oMonster, oPlayer){
+  loadSubText("compare", oMonster.outerHTML+"出了 "+mHandShapeTwo, "你出了 "+pHandShapeTwo);
+  const isPlayerRoundWined = getIsPlayerWined(pHandShapeTwo, mHandShapeTwo);
+  var roundText;
+  if(isPlayerRoundWined === true){
+    roundText = "我方胜出";
+    oPlayer.setAttribute("score", parseInt(oPlayer.getAttribute("score"), 10) + 1);
+    isPlayerLeading = false;
+  }else if(isPlayerRoundWined === null){
+    roundText = "平局";
   }else{
-    controller.updateText("对方胜出");
+    roundText = "对方胜出";
+    oMonster.setAttribute("score", parseInt(oMonster.getAttribute("score"), 10) + 1);
+    isPlayerLeading = true;
   }
-  sleep(3000); // 对这种睡眠方式感到不安和困惑
-  await controller.finish();
+  loadSubText("frameRoundEnd", "", `=============== 回合 ${round} 结束 `);
+  loadSubText("showScore", oPlayer.getAttribute("score"), oPlayer.outerHTML);
+  loadSubText("showScore", oMonster.getAttribute("score"), oMonster.outerHTML);
+  await roundTip.threeSecondsShow(roundText);
+  roundTip.destroy();
 }
 
 // 回合指示器类
@@ -303,7 +338,7 @@ class RoundTip{
   }
 
   destroy(){
-    this.tip.innerText = "";
+    this.tip.remove();
   }
 
   async threeSecondsShow(roundText){

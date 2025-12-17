@@ -23,5 +23,17 @@
   "compare": {
     "file": "行动.json",
     "key": "compare"
+  },
+  "frameRoundStart": {
+    "file": "行动.json",
+    "key": "frameRoundStart"
+  },
+  "frameRoundEnd": {
+    "file": "行动.json",
+    "key": "frameRoundEnd"
+  },
+  "showScore": {
+    "file": "行动.json",
+    "key": "showScore"
   }
 }
