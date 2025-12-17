@@ -66,8 +66,6 @@ async function loadMainText(sceneName, ){
     const sceneData = mytext[sceneInfo.key];
 
     if(sceneInfo.key == "战斗"){
-      oMainTextContent.classList.add("战斗场景");
-      oMainTextJump.classList.add("战斗选择", "高亮缓动");
       oMainTextContent.innerHTML = sceneData.descript; // 手动创建战斗场景和牌桌，json存储的信息作为”统一、样板“存在
     }else{
       // 主文本内容区，分段落加载主文本内容
@@ -240,6 +238,7 @@ async function loadSubText(textName, target, master="你"){
         }
         const oActions = createElementP(master+textData[0]+target, textClass);
         oActionContent.appendChild(oActions);
+        oActionContent.scrollTop = oActionContent.scrollHeight;
       }
     }
 

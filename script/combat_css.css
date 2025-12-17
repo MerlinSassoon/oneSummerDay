@@ -34,7 +34,11 @@
   padding: 10px 100px;
 }
 .战斗选择 {
-  height: 100px;
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
 }
 #对手场地 {
   /* flex成员,横轴方向右对齐，空间固定 */

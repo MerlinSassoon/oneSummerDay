@@ -47,7 +47,7 @@ async function combatRound(round, parameters){
   // 开始战斗回合
   const roundTip = new RoundTip(oRoundInstructions);
   // 回合一 ;回合指示结合回合流程进行；回合指示区生成指示文字，玩家操作，机器操作，回合结算
-  loadSubText("frameRoundStart", "", `=============== 回合 ${round} 开始 `);
+  loadSubText("frameRoundStart", "", `================ 回合 ${round} 开始 `);
   await roundTip.threeSecondsShow(`第 ${round} 回合 开始！`); // 回合指示淡入淡出后销毁
 
   const oRuleDisplay = document.getElementById("副文本规则区");
@@ -67,9 +67,12 @@ async function combatRound(round, parameters){
 }
 
 async function createArea(target){
-  const oTextContent = document.getElementById("主文本内容区");
-  const oTextJump = document.getElementById("主文本跳转区");
-  const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oTextContent.children);
+  const oContent = document.getElementById("主文本内容区");
+  const oJump = document.getElementById("主文本跳转区");
+  const [oMonsterArea, oMahjongTable, oPlayerArea] = Array.from(oContent.children);
+  const oTextJump = oJump.children[0];
+  oContent.classList.add("战斗场景");
+  oTextJump.classList.add("战斗选择", "高亮缓动");
   // 战斗双方入场
   oMonsterArea.innerHTML = target.outerHTML; // 有隐患，注意安全问题，以及逐渐寻找更好的方案
   oMonster = oMonsterArea.children[0];
@@ -149,7 +152,7 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     oTextJump.classList.add("高亮显示");
     enableLiHover(); // 启用按钮，但是全局监听
     // 人类的操作空间
-    const playerShape = await waitForPlayerClick(["handShape", "跳转单元格"]);
+    const playerShape = await waitForPlayerClick(["handShape", "可选按钮"]);
     // 收尾
     await controller.finish();
     oTextJump.classList.remove("高亮显示");
@@ -278,7 +281,7 @@ async function stepsFive(oMonster, roundTip, oRuleFive, oTextJump, pHandShapeOne
     oTextJump.classList.add("高亮显示");
     enableLiHover(getHandShapeObject(pHandShapeOne, pHeartCard));
     // 人类操作：
-    const playerShape = await waitForPlayerClick(["handShape", "跳转单元格"]);
+    const playerShape = await waitForPlayerClick(["handShape", "可选按钮"]);
     // 收尾
     await controller.finish();
     oTextJump.classList.remove("高亮显示");
@@ -316,7 +319,7 @@ async function roundSettlement(round, roundTip, pHandShapeTwo, mHandShapeTwo, oM
     oMonster.setAttribute("score", parseInt(oMonster.getAttribute("score"), 10) + 1);
     isPlayerLeading = true;
   }
-  loadSubText("frameRoundEnd", "", `=============== 回合 ${round} 结束 `);
+  loadSubText("frameRoundEnd", "", `================ 回合 ${round} 结束 `);
   loadSubText("showScore", oPlayer.getAttribute("score"), oPlayer.outerHTML);
   loadSubText("showScore", oMonster.getAttribute("score"), oMonster.outerHTML);
   await roundTip.threeSecondsShow(roundText);
