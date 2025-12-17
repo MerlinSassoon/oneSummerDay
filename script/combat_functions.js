@@ -96,10 +96,12 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
   oRuleThree.classList.add("高亮显示");
   console.log("isPlayerLeading:", isPlayerLeading);
 
-  const pHandShapeOne = stepPlayer(stepThreePlayer, [roundTip, oTextJump]);
-  const mHandShapeOne = stepMonster(stepThreeMonster, [oMonster, roundTip, oTextJump]);
-
-  await Promise.all([pHandShapeOne, mHandShapeOne]);
+  const [pHandShapeOne, mHandShapeOne] = await Promise.all([
+    stepPlayer(stepThreePlayer, [roundTip, oTextJump]),
+    stepMonster(stepThreeMonster, [oMonster, roundTip, oTextJump])
+  ]);
+  console.log("pHandShapeOne", pHandShapeOne);
+  console.log("mHandShapeOne", mHandShapeOne);
 
   oRuleThree.classList.remove("高亮显示");
   console.log("提示已完全消失");
@@ -115,7 +117,7 @@ async function stepsThree(roundTip, oRuleThree, oTextJump, oMonster){
     oTextJump.classList.remove("高亮显示");
     disabledLiHover(); // 禁用按钮
     await controller.finish();
-    return clickedElement.value;
+    return clickedElement;
   }
   async function stepThreeMonster(parameters){
     // 对方操作：手型区锁定，随机选择手型，副文本区报手型
@@ -174,10 +176,12 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
   // 规则4高亮，先行一方选择心牌，回合指示区展示“我方选择心牌”或“对方选择心牌”，心牌区高亮
   oRuleFour.classList.add("高亮显示");
 
-  const pHeartCard = stepPlayer(stepFourPlayer, [roundTip, oPlayerCards]);
-  const mHeartCard = stepMonster(stepFourMonster, [oMonster, roundTip, oMonsterCards]);
-
-  await Promise.all([pHeartCard, mHeartCard]);
+  const [pHeartCard, mHeartCard] = await Promise.all([
+    stepPlayer(stepFourPlayer, [roundTip, oPlayerCards]),
+    stepMonster(stepFourMonster, [oMonster, roundTip, oMonsterCards])
+  ]);
+  console.log("pHeartCard", pHeartCard);
+  console.log("mHeartCard", mHeartCard);
 
   oRuleFour.classList.remove("高亮显示");
   console.log("提示已完全消失");
@@ -200,7 +204,6 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards, oMons
       oCards[i].classList.remove("可选心牌");
     }
     oPlayerCards.classList.remove("高亮显示");
-    console.log("pHeartCard", playerCard.outerHTML);
     return playerCard;
   }
   async function stepFourMonster(parameters){
