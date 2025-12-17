@@ -59,7 +59,7 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
   for(var i=0; i<5; i++){
     const oPCard = document.createElement('div');
     oPCard.innerText = Cards[i];
-    oPCard.className = "心牌";
+    oPCard.className = "心牌 高亮缓动";
     oPCard.setAttribute("value", Cards[i]);
     oPlayerCards.appendChild(oPCard);
 
@@ -79,7 +79,7 @@ async function createMahjongTable(oMonsterCards, oPlayerCards){
 async function stepsTwo(oRuleTwo){
   // 规则2高亮，随机函数选择战斗一方
   oRuleTwo.classList.add("高亮显示");
-  isPlayerLeading = await randomChooseOne([true, false]); // 选择完成后再去高亮
+  isPlayerLeading = true;//await randomChooseOne([true, false]); // 选择完成后再去高亮
 
   setTimeout(()=>{
     oRuleTwo.classList.remove("高亮显示");
@@ -114,7 +114,7 @@ async function stepsThree(roundTip, oRuleThree, oTextJump){
     const clickedElement = await waitForPlayerClick(["handShape", "跳转单元格"]);
     oTextJump.classList.remove("高亮显示");
     disabledLiHover(); // 禁用按钮
-    controller.finish();
+    await controller.finish();
     return clickedElement.value;
   }
   async function stepThreeMonster(parameters){
@@ -141,7 +141,6 @@ async function stepPlayer(specific, parameters){
   console.log("我方结束操作");
   return result;
 }
-
 async function stepMonster(specific, parameters){
   await waitForCondition(() => !isPlayerLeading);
   console.log("对方开始操作");
@@ -157,7 +156,6 @@ async function waitForCondition(condition){
     await new Promise(resolve => setTimeout(resolve, 10));
   }
 }
-
 async function waitForPlayerClick(parameters){
   const [mode, findClass] = parameters
   return new Promise((resolve) => {
@@ -180,6 +178,7 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
   const mHeartCard = stepMonster(stepFourMonster, [roundTip, oMonsterCards]);
 
   await Promise.all([pHeartCard, mHeartCard]);
+
   oRuleFour.classList.remove("高亮显示");
   console.log("提示已完全消失");
 
@@ -195,11 +194,13 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
     // 人类操作
     const playerCard = await waitForPlayerClick(["heartCard","可选心牌"]);
     // 收尾
-    controller.finish();
+    playerCard.style.visibility = "hidden";
+    await controller.finish();
     for(var i=0; i<oCards.length; i++){
       oCards[i].classList.remove("可选心牌");
     }
     oPlayerCards.classList.remove("高亮显示");
+    console.log("pHeartCard", playerCard.outerHTML);
     return playerCard;
   }
   async function stepFourMonster(parameters){
@@ -210,7 +211,8 @@ async function stepsFour(roundTip, oRuleFour, oMonsterCards, oPlayerCards){
     await sleep(3000);
     const oCards = oMonsterCards.children;
     const monsterCard = randomChooseOne(oCards);
-    controller.finish();
+    monsterCard.remove();
+    await controller.finish();
     await loadSubText(["heartCard", "暂时保密"]);// 双方心牌保密
     return monsterCard;
   }

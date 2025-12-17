@@ -2,7 +2,7 @@
   "战斗": {
     "name": "战斗",
     "descript":
-      "<div id='对手场地'></div><div id='牌桌场地'><div id='对手手牌区' class='手牌区'></div><div id='回合指示区'></div><div id='玩家手牌区' class='手牌区'></div></div><div id='玩家场地'></div>",
+      "<div id='对手场地'></div><div id='牌桌场地'><div id='对手手牌区' class='手牌区'></div><div id='回合指示区'></div><div id='玩家手牌区' class='手牌区 高亮缓动'></div></div><div id='玩家场地'></div>",
     "road": ["handShape", "剪刀", "石头", "布"]
   },
   "战斗规则": [

@@ -102,7 +102,7 @@
 .round-tip.show{
   opacity: 1;
 }
-.rule {
+.高亮缓动 {
   transition: box-shadow 0.5s ease; /*考虑和副文本内容放一起*/
 }
 .高亮显示 {
@@ -134,8 +134,10 @@
   align-items: center;
 }
 .可选心牌:hover{
-  width: 62px;
-  height: 102px;
+  /* 高亮显示 */
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.8); /* 柔和金色光晕 */
+  transform: rotate(15deg) scale(1.2); /* 旋转15度，放大1.2倍 */
 }
 
 #玩家场地 {
